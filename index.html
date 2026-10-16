@@ -1,0 +1,2951 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SUE10031 Communicative English</title>
+<style>
+  :root {
+    --primary: #1e40af;
+    --primary-light: #3b82f6;
+    --primary-dark: #1e3a8a;
+    --secondary: #7c3aed;
+    --success: #059669;
+    --warning: #d97706;
+    --danger: #dc2626;
+    --info: #0891b2;
+    --bg: #f1f5f9;
+    --surface: #ffffff;
+    --border: #e2e8f0;
+    --text: #1e293b;
+    --muted: #64748b;
+    --sidebar-w: 260px;
+    --sidebar-collapsed-w: 60px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, "Segoe UI", system-ui, sans-serif; background: var(--bg); color: var(--text); font-size: 14px; line-height: 1.6; }
+
+  /* LOGIN */
+  #loginScreen { display:flex; align-items:center; justify-content:center; min-height:100vh; background: linear-gradient(135deg, #1e3a8a 0%, #7c3aed 100%); }
+  .login-card { background:#fff; border-radius:16px; padding:40px; width:100%; max-width:420px; box-shadow:0 20px 60px rgba(0,0,0,0.3); }
+  .login-card h1 { color:var(--primary-dark); font-size:20px; font-weight:700; margin-bottom:4px; }
+  .login-card .subtitle { color:var(--muted); font-size:13px; margin-bottom:28px; }
+  .form-group { margin-bottom:16px; }
+  .form-group label { display:block; font-size:12px; font-weight:600; color:var(--muted); margin-bottom:6px; text-transform:uppercase; letter-spacing:.5px; }
+  .form-group input, .form-group select, .form-group textarea { width:100%; padding:10px 14px; border:1.5px solid var(--border); border-radius:8px; font-size:14px; color:var(--text); background:#fff; transition:border .2s; }
+  .form-group input:focus, .form-group select:focus, .form-group textarea:focus { outline:none; border-color:var(--primary-light); }
+  .btn { display:inline-flex; align-items:center; gap:6px; padding:10px 18px; border:none; border-radius:8px; font-size:14px; font-weight:600; cursor:pointer; transition:all .2s; }
+  .btn-primary { background:var(--primary); color:#fff; }
+  .btn-primary:hover { background:var(--primary-dark); }
+  .btn-secondary { background:var(--border); color:var(--text); }
+  .btn-secondary:hover { background:#cbd5e1; }
+  .btn-success { background:var(--success); color:#fff; }
+  .btn-success:hover { background:#047857; }
+  .btn-danger { background:var(--danger); color:#fff; }
+  .btn-danger:hover { background:#b91c1c; }
+  .btn-warning { background:var(--warning); color:#fff; }
+  .btn-warning:hover { background:#b45309; }
+  .btn-info { background:var(--info); color:#fff; }
+  .btn-sm { padding:6px 12px; font-size:12px; }
+  .btn-full { width:100%; justify-content:center; }
+  .login-error { color:var(--danger); font-size:13px; margin-top:8px; display:none; }
+  .login-logo { text-align:center; margin-bottom:24px; }
+  .login-logo .logo-icon { width:60px; height:60px; background:var(--primary); border-radius:14px; display:inline-flex; align-items:center; justify-content:center; color:#fff; font-size:24px; font-weight:800; margin-bottom:8px; }
+
+  /* APP SHELL */
+  #appShell { display:none; min-height:100vh; }
+  .sidebar { position:fixed; top:0; left:0; bottom:0; width:var(--sidebar-w); background:var(--primary-dark); color:#fff; overflow-y:auto; z-index:100; display:flex; flex-direction:column; transition:width .25s ease; overflow-x:hidden; }
+  .sidebar.collapsed { width:var(--sidebar-collapsed-w); }
+  .sidebar-header { padding:20px 16px; border-bottom:1px solid rgba(255,255,255,0.1); position:relative; min-height:80px; }
+  .sidebar-header .app-name { font-size:13px; font-weight:700; color:#93c5fd; letter-spacing:.5px; white-space:nowrap; overflow:hidden; transition:opacity .2s; }
+  .sidebar-header .course-name { font-size:16px; font-weight:700; color:#fff; margin-top:2px; line-height:1.3; white-space:nowrap; overflow:hidden; transition:opacity .2s; }
+  .sidebar-header .session-badge { background:rgba(255,255,255,0.15); border-radius:6px; padding:3px 8px; font-size:11px; color:#bfdbfe; margin-top:6px; display:inline-block; white-space:nowrap; overflow:hidden; transition:opacity .2s; }
+  .sidebar.collapsed .sidebar-header .app-name,
+  .sidebar.collapsed .sidebar-header .course-name,
+  .sidebar.collapsed .sidebar-header .session-badge { opacity:0; pointer-events:none; }
+  .sidebar-toggle { position:absolute; top:16px; right:10px; background:rgba(255,255,255,0.12); border:none; border-radius:6px; color:#fff; width:28px; height:28px; cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:14px; transition:background .2s; flex-shrink:0; }
+  .sidebar-toggle:hover { background:rgba(255,255,255,0.22); }
+  .sidebar-nav { flex:1; padding:12px 0; }
+
+  /* Nav groups */
+  .nav-group-header { display:flex; align-items:center; justify-content:space-between; padding:8px 16px 4px; font-size:10px; font-weight:700; color:#93c5fd; letter-spacing:1px; text-transform:uppercase; white-space:nowrap; overflow:hidden; cursor:pointer; user-select:none; transition:color .15s; }
+  .nav-group-header:hover { color:#bfdbfe; }
+  .nav-group-chevron { font-size:9px; transition:transform .25s; flex-shrink:0; opacity:.7; }
+  .nav-group.open .nav-group-chevron { transform:rotate(180deg); }
+  .nav-group-body { overflow:hidden; max-height:0; transition:max-height .3s ease; }
+  .nav-group.open .nav-group-body { max-height:400px; }
+  /* collapsed sidebar: hide group headers, show icons only, expand on hover via tooltip */
+  .sidebar.collapsed .nav-group-header { opacity:0; height:0; padding:0; margin:0; pointer-events:none; }
+  .sidebar.collapsed .nav-group-body { max-height:400px; overflow:visible; }
+  /* tooltip on collapsed items */
+  .nav-item { position:relative; display:flex; align-items:center; gap:10px; padding:10px 16px; color:rgba(255,255,255,0.75); cursor:pointer; border-radius:0; transition:all .2s; font-size:14px; white-space:nowrap; }
+  .nav-item:hover { background:rgba(255,255,255,0.08); color:#fff; }
+  .nav-item.active { background:var(--primary); color:#fff; border-right:3px solid #60a5fa; }
+  .nav-item .nav-icon { width:18px; text-align:center; flex-shrink:0; }
+  .nav-item .nav-label { transition:opacity .2s; overflow:hidden; }
+  .sidebar.collapsed .nav-item .nav-label { opacity:0; width:0; }
+  .sidebar.collapsed .nav-item { justify-content:center; padding:10px 0; }
+  /* sub-item indent inside a group body */
+  .nav-group-body .nav-item { padding-left:32px; font-size:13px; }
+  .sidebar.collapsed .nav-group-body .nav-item { padding-left:0; justify-content:center; }
+  /* tooltip */
+  .nav-item .nav-tooltip { display:none; position:absolute; left:calc(var(--sidebar-collapsed-w) + 6px); top:50%; transform:translateY(-50%); background:#1e293b; color:#fff; font-size:12px; font-weight:600; padding:5px 10px; border-radius:6px; white-space:nowrap; pointer-events:none; z-index:200; box-shadow:0 2px 8px rgba(0,0,0,.35); }
+  .sidebar.collapsed .nav-item:hover .nav-tooltip { display:block; }
+  .sidebar-footer { padding:16px; border-top:1px solid rgba(255,255,255,0.1); overflow:hidden; }
+  .sidebar.collapsed .sidebar-footer .user-name,
+  .sidebar.collapsed .sidebar-footer .user-role,
+  .sidebar.collapsed .sidebar-footer .signout-btn { opacity:0; height:0; overflow:hidden; margin:0; padding:0; pointer-events:none; }
+  .user-info { display:flex; align-items:center; gap:10px; }
+  .user-avatar { width:36px; height:36px; border-radius:50%; background:var(--primary-light); display:flex; align-items:center; justify-content:center; font-weight:700; font-size:14px; color:#fff; flex-shrink:0; }
+  .user-name { font-size:13px; font-weight:600; color:#fff; transition:opacity .2s; white-space:nowrap; }
+  .user-role { font-size:11px; color:#93c5fd; transition:opacity .2s; white-space:nowrap; }
+
+  /* MAIN CONTENT */
+  .main { margin-left:var(--sidebar-w); min-height:100vh; transition:margin-left .25s ease; }
+  .main.sidebar-collapsed { margin-left:var(--sidebar-collapsed-w); }
+  .topbar { background:#fff; border-bottom:1px solid var(--border); padding:14px 24px; display:flex; align-items:center; justify-content:space-between; position:sticky; top:0; z-index:50; }
+  .topbar h2 { font-size:18px; font-weight:700; color:var(--text); }
+  .content { padding:24px; }
+
+  /* CARDS */
+  .card { background:#fff; border-radius:12px; border:1px solid var(--border); padding:20px; margin-bottom:20px; }
+  .card-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:16px; }
+  .card-title { font-size:15px; font-weight:700; color:var(--text); }
+
+  /* STATS */
+  .stats-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:16px; margin-bottom:24px; }
+  .stat-card { background:#fff; border-radius:12px; border:1px solid var(--border); padding:18px; }
+  .stat-label { font-size:12px; color:var(--muted); font-weight:600; text-transform:uppercase; letter-spacing:.5px; }
+  .stat-value { font-size:28px; font-weight:800; color:var(--primary); margin-top:4px; }
+  .stat-sub { font-size:12px; color:var(--muted); margin-top:2px; }
+
+  /* TABLE */
+  .table-wrap { overflow-x:auto; }
+  table { width:100%; border-collapse:collapse; }
+  thead th { background:#f8fafc; padding:10px 14px; text-align:left; font-size:12px; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:.5px; border-bottom:2px solid var(--border); }
+  tbody td { padding:11px 14px; border-bottom:1px solid var(--border); font-size:13px; vertical-align:middle; }
+  tbody tr:hover { background:#f8fafc; }
+  tbody tr:last-child td { border-bottom:none; }
+
+  /* BADGES */
+  .badge { display:inline-flex; align-items:center; padding:3px 10px; border-radius:20px; font-size:11px; font-weight:700; }
+  .badge-submitted { background:#dbeafe; color:#1d4ed8; }
+  .badge-completed { background:#d1fae5; color:#065f46; }
+  .badge-no-submission { background:#fee2e2; color:#991b1b; }
+  .badge-incomplete { background:#fef3c7; color:#92400e; }
+  .badge-pending { background:#f1f5f9; color:var(--muted); }
+  .badge-admin { background:#ede9fe; color:#5b21b6; }
+  .badge-student { background:#e0f2fe; color:#075985; }
+
+  /* MODAL */
+  .modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:1000; align-items:center; justify-content:center; padding:20px; }
+  .modal-overlay.open { display:flex; }
+  .modal { background:#fff; border-radius:16px; width:100%; max-width:580px; max-height:90vh; overflow-y:auto; box-shadow:0 25px 80px rgba(0,0,0,0.3); }
+  .modal-lg { max-width:800px; }
+  .modal-xl { max-width:95vw; }
+  .modal-header { display:flex; align-items:center; justify-content:space-between; padding:20px 24px; border-bottom:1px solid var(--border); position:sticky; top:0; background:#fff; z-index:1; }
+  .modal-header h3 { font-size:16px; font-weight:700; }
+  .modal-close { background:none; border:none; cursor:pointer; color:var(--muted); font-size:20px; padding:4px; border-radius:6px; }
+  .modal-close:hover { background:var(--bg); }
+  .modal-body { padding:24px; }
+  .modal-footer { padding:16px 24px; border-top:1px solid var(--border); display:flex; gap:10px; justify-content:flex-end; }
+
+  /* TABS */
+  .tabs { display:flex; gap:4px; border-bottom:2px solid var(--border); margin-bottom:20px; }
+  .tab { padding:10px 16px; font-size:14px; font-weight:600; color:var(--muted); cursor:pointer; border-bottom:2px solid transparent; margin-bottom:-2px; transition:all .2s; }
+  .tab.active { color:var(--primary); border-bottom-color:var(--primary); }
+  .tab-content { display:none; }
+  .tab-content.active { display:block; }
+
+  /* MATRIX */
+  .matrix-table th, .matrix-table td { padding:8px 12px; font-size:12px; }
+  .matrix-table .student-cell { font-weight:600; min-width:150px; }
+  .matrix-status { cursor:pointer; text-align:center; }
+  .matrix-status:hover { background:#f0f9ff; }
+
+  /* MATERIALS — topic accordion */
+  .topic-accordion { border:1px solid var(--border); border-radius:12px; overflow:hidden; margin-bottom:12px; }
+  .topic-acc-header { display:flex; align-items:center; gap:12px; padding:14px 16px; cursor:pointer; background:#fff; user-select:none; transition:background .15s; }
+  .topic-acc-header:hover { background:#f8fafc; }
+  .topic-acc-num { width:32px; height:32px; border-radius:8px; background:var(--primary); color:#fff; display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:800; flex-shrink:0; }
+  .topic-acc-info { flex:1; }
+  .topic-acc-name { font-size:15px; font-weight:700; color:var(--text); }
+  .topic-acc-meta { font-size:12px; color:var(--muted); margin-top:1px; }
+  .topic-acc-chevron { font-size:12px; color:var(--muted); transition:transform .2s; }
+  .topic-accordion.open .topic-acc-chevron { transform:rotate(180deg); }
+  .topic-acc-actions { display:flex; gap:6px; }
+  .topic-acc-body { display:none; padding:12px 16px 16px; border-top:1px solid var(--border); background:#fafbfc; }
+  .topic-accordion.open .topic-acc-body { display:block; }
+
+  /* MATERIALS — drag & reorder */
+  .material-item { display:flex; align-items:center; gap:12px; padding:10px 14px; border:1px solid var(--border); border-radius:10px; margin-bottom:8px; background:#fff; transition:box-shadow .15s, opacity .15s; }
+  .material-item:last-child { margin-bottom:0; }
+  .material-item[draggable="true"] { cursor:grab; }
+  .material-item[draggable="true"]:active { cursor:grabbing; }
+  .material-item.drag-over { border-color:var(--primary-light); box-shadow:0 0 0 2px #bfdbfe; }
+  .material-item.dragging  { opacity:.4; }
+  .drag-handle { color:var(--muted); font-size:13px; cursor:grab; padding:0 2px; flex-shrink:0; user-select:none; }
+  .drag-handle:active { cursor:grabbing; }
+  /* topic drag */
+  .topic-accordion[draggable="true"] { cursor:default; }
+  .topic-accordion.drag-over-topic { border-color:var(--primary-light); box-shadow:0 0 0 2px #bfdbfe; }
+  .topic-accordion.dragging-topic  { opacity:.4; }
+  .topic-drag-handle { color:var(--muted); font-size:16px; cursor:grab; padding:0 4px; flex-shrink:0; user-select:none; }
+  .topic-drag-handle:active { cursor:grabbing; }
+  .material-icon { width:38px; height:38px; border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:17px; flex-shrink:0; }
+  .material-icon.pdf   { background:#fee2e2; }
+  .material-icon.word  { background:#dbeafe; }
+  .material-icon.ppt   { background:#ffedd5; }
+  .material-icon.excel { background:#dcfce7; }
+  .material-icon.vid   { background:#fce7f3; }
+  .material-icon.link  { background:#d1fae5; }
+  .material-icon.act   { background:#ede9fe; }
+  .material-icon.doc   { background:#dbeafe; }
+  .material-meta { flex:1; min-width:0; }
+  .material-title { font-weight:600; font-size:14px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .material-type { font-size:12px; color:var(--muted); }
+  .material-actions { display:flex; gap:6px; flex-shrink:0; }
+  .mat-cat-pill { font-size:11px; font-weight:700; padding:2px 9px; border-radius:20px; background:#ede9fe; color:#5b21b6; white-space:nowrap; }
+  .mat-open-btn { display:inline-flex; align-items:center; gap:4px; padding:5px 12px; background:#eff6ff; border:1px solid #bfdbfe; color:var(--primary); font-size:12px; font-weight:700; border-radius:7px; cursor:pointer; text-decoration:none; }
+  .mat-open-btn:hover { background:#dbeafe; }
+
+  /* UPLOAD ZONE */
+  .upload-zone { border:2px dashed var(--border); border-radius:12px; padding:24px; text-align:center; cursor:pointer; transition:all .2s; }
+  .upload-zone:hover, .upload-zone.drag { border-color:var(--primary-light); background:#f0f9ff; }
+  .upload-zone .upload-icon { font-size:28px; margin-bottom:6px; }
+  .upload-zone p { color:var(--muted); font-size:13px; }
+  .file-chosen-label { font-size:12px; color:var(--success); font-weight:600; margin-top:6px; }
+
+  /* mat kind toggle */
+  .mat-kind-btns { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:14px; }
+  .mat-kind-btn { padding:6px 14px; border:1.5px solid var(--border); border-radius:8px; background:var(--bg); font-size:13px; font-weight:600; cursor:pointer; color:var(--muted); transition:all .15s; }
+  .mat-kind-btn.sel { border-color:var(--primary-light); background:#eff6ff; color:var(--primary); }
+
+  /* PROGRESS BAR */
+  .progress-bar { height:8px; background:var(--border); border-radius:4px; overflow:hidden; }
+  .progress-fill { height:100%; border-radius:4px; background:var(--primary-light); transition:width .4s; }
+
+  /* ALERTS */
+  .alert { padding:12px 16px; border-radius:8px; font-size:13px; margin-bottom:16px; }
+  .alert-info { background:#e0f2fe; color:#075985; border:1px solid #bae6fd; }
+  .alert-success { background:#d1fae5; color:#065f46; border:1px solid #a7f3d0; }
+  .alert-warning { background:#fef3c7; color:#92400e; border:1px solid #fde68a; }
+
+  /* CLASS CARDS */
+  .class-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(260px, 1fr)); gap:16px; }
+  .class-card { background:#fff; border:1px solid var(--border); border-radius:12px; padding:20px; cursor:pointer; transition:all .2s; position:relative; }
+  .class-card:hover { border-color:var(--primary-light); box-shadow:0 4px 20px rgba(59,130,246,.15); transform:translateY(-2px); }
+  .class-card .class-name { font-size:16px; font-weight:700; color:var(--text); }
+  .class-card .class-meta { font-size:12px; color:var(--muted); margin-top:4px; }
+  .class-card .class-count { display:flex; align-items:center; gap:6px; margin-top:12px; font-size:12px; color:var(--muted); }
+  .class-card .class-actions { position:absolute; top:12px; right:12px; display:flex; gap:4px; opacity:0; transition:.2s; }
+  .class-card:hover .class-actions { opacity:1; }
+
+  /* ASSESSMENT CARDS */
+  .assessment-card { background:#fff; border:1px solid var(--border); border-radius:12px; padding:16px; display:flex; gap:14px; margin-bottom:10px; align-items:flex-start; }
+  .assessment-type-icon { width:44px; height:44px; border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:20px; flex-shrink:0; }
+  .type-submission { background:#dbeafe; }
+  .type-tracking { background:#fce7f3; }
+  .assessment-info { flex:1; }
+  .assessment-title { font-weight:700; font-size:14px; }
+  .assessment-meta { font-size:12px; color:var(--muted); margin-top:2px; }
+  .assessment-actions { display:flex; gap:6px; align-items:center; }
+
+  /* SESSION PILLS */
+  .session-list { display:flex; flex-wrap:wrap; gap:10px; }
+  .session-pill { padding:8px 18px; border-radius:30px; border:2px solid var(--border); font-size:13px; font-weight:600; cursor:pointer; transition:all .2s; }
+  .session-pill.active { background:var(--primary); border-color:var(--primary); color:#fff; }
+  .session-pill:hover:not(.active) { border-color:var(--primary-light); color:var(--primary); }
+
+  /* GRADING */
+  .grading-row { display:flex; gap:12px; align-items:flex-start; }
+  .grade-input { width:100px; }
+
+  /* STUDENT SUBMISSION VIEW */
+  .submission-status-large { text-align:center; padding:30px; }
+  .submission-status-large .status-icon { font-size:48px; margin-bottom:12px; }
+
+  /* MATERIAL PROGRESS */
+  .mat-progress-wrap { display:flex; align-items:center; gap:8px; margin-top:6px; margin-bottom:4px; }
+  .mat-progress-bar { flex:1; height:7px; background:var(--border); border-radius:4px; overflow:hidden; }
+  .mat-progress-fill { height:100%; background:var(--primary-light); border-radius:4px; transition:width .4s; }
+  .mat-done-check { font-size:13px; color:var(--success); flex-shrink:0; }
+  .mat-item-done { opacity:.75; }
+  .mat-item-done .material-title { text-decoration:line-through; color:var(--muted); }
+
+  /* COMPLETION BADGE */
+  .completion-badge { display:flex; align-items:center; gap:14px; background:linear-gradient(135deg,#1e3a8a,#7c3aed); color:#fff; border-radius:14px; padding:18px 24px; margin-bottom:20px; }
+  .completion-badge .badge-icon { font-size:42px; line-height:1; flex-shrink:0; }
+  .completion-badge .badge-title { font-size:17px; font-weight:800; margin-bottom:2px; }
+  .completion-badge .badge-sub { font-size:12px; opacity:.85; }
+
+  /* CROWN AVATAR */
+  .user-avatar-wrap { position:relative; display:inline-block; }
+  .user-crown { position:absolute; top:-10px; left:50%; transform:translateX(-50%); font-size:16px; line-height:1; pointer-events:none; }
+
+  /* EMPTY STATE */
+  .empty-state { text-align:center; padding:48px 20px; color:var(--muted); }
+  .empty-state .empty-icon { font-size:48px; margin-bottom:12px; opacity:.4; }
+  .empty-state h3 { font-size:16px; font-weight:600; color:var(--text); margin-bottom:4px; }
+  .empty-state p { font-size:13px; }
+
+  /* ATTENDANCE */
+  .att-status-btn { padding:5px 12px; border:1.5px solid var(--border); border-radius:7px; font-size:12px; font-weight:600; cursor:pointer; background:var(--bg); color:var(--muted); transition:all .15s; }
+  .att-status-btn.sel-present { border-color:var(--success); background:#d1fae5; color:#065f46; }
+  .att-status-btn.sel-absent  { border-color:var(--danger);  background:#fee2e2; color:#991b1b; }
+  .att-status-btn.sel-mc      { border-color:var(--warning); background:#fef3c7; color:#92400e; }
+  .att-status-btn.sel-activity{ border-color:var(--info);    background:#e0f2fe; color:#075985; }
+  .att-badge-present  { background:#d1fae5; color:#065f46; }
+  .att-badge-absent   { background:#fee2e2; color:#991b1b; }
+  .att-badge-mc       { background:#fef3c7; color:#92400e; }
+  .att-badge-activity { background:#e0f2fe; color:#075985; }
+
+  /* PIE CHART (SVG) */
+  .chart-wrap { display:flex; align-items:center; gap:24px; flex-wrap:wrap; }
+  .chart-legend { display:flex; flex-direction:column; gap:8px; }
+  .legend-item { display:flex; align-items:center; gap:8px; font-size:13px; }
+  .legend-dot { width:12px; height:12px; border-radius:50%; flex-shrink:0; }
+
+  /* WEIGHTAGE */
+  .weightage-row { display:flex; align-items:center; gap:10px; margin-bottom:8px; }
+  .weightage-row input[type=number] { width:70px; padding:6px 8px; border:1.5px solid var(--border); border-radius:7px; font-size:13px; }
+  .weightage-total { font-size:13px; font-weight:700; padding:6px 12px; border-radius:8px; }
+  .weightage-ok  { background:#d1fae5; color:#065f46; }
+  .weightage-bad { background:#fee2e2; color:#991b1b; }
+
+  /* RESPONSIVE */
+  @media(max-width:768px) {
+    :root { --sidebar-w: 0px; }
+    .sidebar { transform:translateX(-260px); width:260px; transition:.3s; }
+    .sidebar.open { transform:translateX(0); --sidebar-w:260px; }
+    .main { margin-left:0; }
+  }
+
+  .hidden { display:none !important; }
+  .flex { display:flex; }
+  .flex-col { flex-direction:column; }
+  .items-center { align-items:center; }
+  .justify-between { justify-content:space-between; }
+  .gap-2 { gap:8px; }
+  .gap-3 { gap:12px; }
+  .mt-2 { margin-top:8px; }
+  .mt-3 { margin-top:12px; }
+  .mb-3 { margin-bottom:12px; }
+  .text-muted { color:var(--muted); font-size:12px; }
+  .text-danger { color:var(--danger); }
+  .fw-bold { font-weight:700; }
+  .w-full { width:100%; }
+  .grid-2 { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+</style>
+</head>
+<body>
+
+<!-- ===== LOGIN SCREEN ===== -->
+<div id="loginScreen">
+  <div class="login-card">
+    <div class="login-logo">
+      <div class="logo-icon">CE</div>
+    </div>
+    <h1>SUE10031 Communicative English</h1>
+    <p class="subtitle">Please sign in to continue</p>
+    <div class="form-group">
+      <label>Username / Student ID</label>
+      <input type="text" id="loginUser" placeholder="Enter username or Student ID" autocomplete="username">
+    </div>
+    <div class="form-group">
+      <label>Password</label>
+      <input type="password" id="loginPass" placeholder="Enter password" autocomplete="current-password">
+    </div>
+    <p class="login-error" id="loginError">❌ Invalid credentials. Please try again.</p>
+    <button class="btn btn-primary btn-full mt-2" onclick="doLogin()">Sign In</button>
+    <p class="text-muted mt-2" style="text-align:center">Students: use your Student ID &amp; IC number as password</p>
+  </div>
+</div>
+
+<!-- ===== APP SHELL ===== -->
+<div id="appShell">
+  <!-- SIDEBAR -->
+  <div class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="app-name">SUE10031</div>
+      <div class="course-name">Communicative English</div>
+      <div class="session-badge" id="activeSessionBadge">No Active Session</div>
+      <button class="sidebar-toggle" onclick="toggleSidebar()" title="Toggle sidebar">&#9776;</button>
+    </div>
+    <nav class="sidebar-nav" id="sidebarNav">
+      <!-- injected by JS -->
+    </nav>
+    <div class="sidebar-footer">
+      <div class="user-info">
+        <div class="user-avatar-wrap" id="userAvatarWrap">
+          <div class="user-avatar" id="userAvatar">?</div>
+        </div>
+        <div>
+          <div class="user-name" id="userDisplayName">-</div>
+          <div class="user-role" id="userRoleBadge">-</div>
+        </div>
+      </div>
+      <button class="btn btn-sm signout-btn" style="width:100%;margin-top:10px;background:rgba(255,255,255,0.1);color:#fff;border:1px solid rgba(255,255,255,0.2);" onclick="doLogout()">🚪 Sign Out</button>
+    </div>
+  </div>
+
+  <!-- MAIN -->
+  <div class="main">
+    <div class="topbar">
+      <h2 id="pageTitle">Dashboard</h2>
+      <div class="flex items-center gap-2">
+        <span id="topbarSessionInfo" style="font-size:12px;color:var(--muted);"></span>
+      </div>
+    </div>
+    <div class="content" id="mainContent">
+      <!-- injected by JS -->
+    </div>
+  </div>
+</div>
+
+<!-- ===== MODALS ===== -->
+
+<!-- Class Modal -->
+<div class="modal-overlay" id="classModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 id="classModalTitle">Create Class</h3>
+      <button class="modal-close" onclick="closeModal('classModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="classModalId">
+      <div class="form-group"><label>Class Name</label><input type="text" id="classModalName" placeholder="e.g. Group A"></div>
+      <div class="form-group"><label>Section / Code</label><input type="text" id="classModalSection" placeholder="e.g. SEC01"></div>
+      <div class="form-group"><label>Description</label><textarea id="classModalDesc" rows="2" placeholder="Optional description"></textarea></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('classModal')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveClass()">Save Class</button>
+    </div>
+  </div>
+</div>
+
+<!-- Student Upload Modal -->
+<div class="modal-overlay" id="studentModal">
+  <div class="modal modal-lg">
+    <div class="modal-header">
+      <h3 id="studentModalTitle">Manage Students</h3>
+      <button class="modal-close" onclick="closeModal('studentModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="tabs">
+        <div class="tab active" onclick="switchTab('studentTabBulk','studentTabs',this)">📤 Bulk Upload</div>
+        <div class="tab" onclick="switchTab('studentTabManual','studentTabs',this)">✏️ Add Manually</div>
+        <div class="tab" onclick="switchTab('studentTabList','studentTabs',this)">👥 Student List</div>
+      </div>
+      <div id="studentTabs">
+        <div class="tab-content active" id="studentTabBulk">
+          <div class="alert alert-info">Upload a CSV or XLSX file. Required columns: <strong>Student ID, Name, IC Number</strong> (optional: Email, Phone)</div>
+          <div class="upload-zone" id="uploadZone" onclick="document.getElementById('fileUpload').click()" ondragover="dragOver(event)" ondrop="dropFile(event)">
+            <div class="upload-icon">📂</div>
+            <p><strong>Click to browse</strong> or drag &amp; drop here</p>
+            <p>Supports CSV or XLSX files</p>
+          </div>
+          <input type="file" id="fileUpload" accept=".csv,.xlsx" style="display:none" onchange="handleFileUpload(event)">
+          <div id="uploadPreview" style="margin-top:16px;"></div>
+        </div>
+        <div class="tab-content" id="studentTabManual">
+          <div class="grid-2">
+            <div class="form-group"><label>Student ID</label><input type="text" id="manStudentId" placeholder="e.g. 2024001"></div>
+            <div class="form-group"><label>Full Name</label><input type="text" id="manStudentName" placeholder="Full name"></div>
+            <div class="form-group"><label>IC Number (Password)</label><input type="text" id="manStudentIC" placeholder="e.g. 991231071234"></div>
+            <div class="form-group"><label>Email</label><input type="email" id="manStudentEmail" placeholder="email@example.com"></div>
+          </div>
+          <button class="btn btn-primary" onclick="addStudentManual()">Add Student</button>
+        </div>
+        <div class="tab-content" id="studentTabList">
+          <div id="studentListContainer"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Material Modal -->
+<!-- Topic Modal -->
+<div class="modal-overlay" id="topicModal">
+  <div class="modal" style="max-width:480px;">
+    <div class="modal-header">
+      <h3 id="topicModalTitle">Add Topic</h3>
+      <button class="modal-close" onclick="closeModal('topicModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="topicModalId">
+      <div class="alert alert-info" style="margin-bottom:12px;">Topics are shared across all classes (same syllabus). Assign specific classes when adding materials.</div>
+      <div class="form-group"><label>Topic Number</label><input type="number" id="topicNum" placeholder="e.g. 1" min="1"></div>
+      <div class="form-group"><label>Topic Title</label><input type="text" id="topicName" placeholder="e.g. Introduction to Communication"></div>
+      <div class="form-group"><label>Description (optional)</label><input type="text" id="topicDesc" placeholder="Brief description"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('topicModal')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveTopic()">Save Topic</button>
+    </div>
+  </div>
+</div>
+
+<!-- Material Modal -->
+<div class="modal-overlay" id="materialModal">
+  <div class="modal modal-lg">
+    <div class="modal-header">
+      <h3 id="materialModalTitle">Add Material</h3>
+      <button class="modal-close" onclick="closeModal('materialModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="materialModalId">
+      <input type="hidden" id="materialModalTopicId">
+
+      <!-- Kind selector -->
+      <div class="form-group">
+        <label>Material Kind</label>
+        <div class="mat-kind-btns">
+          <button class="mat-kind-btn sel" data-kind="file" onclick="selectMatKind('file',this)">📁 File Upload</button>
+          <button class="mat-kind-btn" data-kind="url" onclick="selectMatKind('url',this)">🔗 URL / Link</button>
+        </div>
+      </div>
+
+      <!-- File upload -->
+      <div id="matKindFile">
+        <div class="upload-zone" id="matUploadZone"
+             onclick="document.getElementById('matFileInput').click()"
+             ondragover="matDragOver(event)" ondragleave="matDragLeave(event)" ondrop="matDrop(event)">
+          <div class="upload-icon">📂</div>
+          <p><strong>Click to browse</strong> or drag &amp; drop</p>
+          <p>PDF · Word · PowerPoint · Excel (.doc .docx .ppt .pptx .xls .xlsx)</p>
+        </div>
+        <div class="file-chosen-label" id="matFileChosen" style="display:none;"></div>
+        <input type="file" id="matFileInput" accept=".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx" style="display:none" onchange="handleMatFile(event)">
+      </div>
+
+      <!-- URL -->
+      <div id="matKindUrl" style="display:none;">
+        <div class="form-group"><label>URL</label><input type="url" id="matUrl" placeholder="https://youtube.com/... or https://mentimeter.com/..."></div>
+      </div>
+
+      <div class="form-group"><label>Title</label><input type="text" id="matTitle" placeholder="Material title"></div>
+      <div class="form-group">
+        <label>Category</label>
+        <select id="matCategory">
+          <option value="material">📖 Teaching Material</option>
+          <option value="activity">⚡ Activity</option>
+          <option value="reference">📚 Reference</option>
+          <option value="video">🎬 Video</option>
+        </select>
+      </div>
+      <div class="form-group"><label>Description (optional)</label><textarea id="matDesc" rows="2" placeholder="Optional notes or instructions"></textarea></div>
+      <div class="form-group"><label>Assign to Class</label><select id="matClass"><option value="all">All Classes</option></select></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('materialModal')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveMaterial()">Save Material</button>
+    </div>
+  </div>
+</div>
+
+<!-- Assessment Modal -->
+<div class="modal-overlay" id="assessmentModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 id="assessmentModalTitle">Create Assessment</h3>
+      <button class="modal-close" onclick="closeModal('assessmentModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="assessmentModalId">
+      <div class="form-group"><label>Assessment Title</label><input type="text" id="assessTitle" placeholder="e.g. Oral Presentation"></div>
+      <div class="form-group">
+        <label>Assessment Type</label>
+        <select id="assessType" onchange="toggleAssessFields()">
+          <option value="submission">📤 Submission (requires file/link upload)</option>
+          <option value="tracking">📋 Status Tracking Only (presentation, role-play)</option>
+        </select>
+      </div>
+      <div class="form-group"><label>Total Marks</label><input type="number" id="assessMarks" placeholder="e.g. 100" min="0" max="999"></div>
+      <div class="form-group"><label>Weightage (%)</label><input type="number" id="assessWeightage" placeholder="e.g. 30" min="0" max="100" step="0.1"><div class="text-muted" style="margin-top:4px;">Percentage of On-Going Assessment total (all should sum to 100%)</div></div>
+      <div class="form-group"><label>Due Date</label><input type="date" id="assessDue"></div>
+      <div class="form-group"><label>Assign to Class</label><select id="assessClass"><option value="all">All Classes</option></select></div>
+      <div class="form-group"><label>Instructions</label><textarea id="assessInstructions" rows="3" placeholder="Assessment instructions..."></textarea></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('assessmentModal')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveAssessment()">Save Assessment</button>
+    </div>
+  </div>
+</div>
+
+<!-- Grading Modal -->
+<div class="modal-overlay" id="gradingModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 id="gradingModalTitle">Grade Submission</h3>
+      <button class="modal-close" onclick="closeModal('gradingModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="gradingSubId">
+      <div id="gradingStudentInfo" style="background:var(--bg);border-radius:8px;padding:12px;margin-bottom:16px;"></div>
+      <div id="gradingSubmissionInfo" style="margin-bottom:16px;"></div>
+      <div class="form-group">
+        <label>Status</label>
+        <select id="gradingStatus">
+          <option value="Submitted">Submitted</option>
+          <option value="Completed">Completed</option>
+          <option value="Incomplete">Incomplete</option>
+          <option value="No Submission">No Submission</option>
+        </select>
+      </div>
+      <div class="form-group" id="gradingMarksGroup">
+        <label>Marks / Score</label>
+        <input type="number" id="gradingMarks" placeholder="Enter marks" min="0">
+      </div>
+      <div class="form-group">
+        <label>Text Feedback</label>
+        <textarea id="gradingFeedback" rows="4" placeholder="Provide feedback to the student..."></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('gradingModal')">Cancel</button>
+      <button class="btn btn-success" onclick="saveGrade()">💾 Save Grade</button>
+    </div>
+  </div>
+</div>
+
+<!-- Attendance Modal (Admin) -->
+<div class="modal-overlay" id="attendanceModal">
+  <div class="modal modal-lg">
+    <div class="modal-header">
+      <h3 id="attendanceModalTitle">Record Attendance</h3>
+      <button class="modal-close" onclick="closeModal('attendanceModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="grid-2" style="margin-bottom:16px;">
+        <div class="form-group"><label>Date</label><input type="date" id="attDate"></div>
+        <div class="form-group"><label>Hours (max 2 per session)</label><input type="number" id="attHours" value="2" min="0" max="2" step="0.5"></div>
+      </div>
+      <div class="form-group"><label>Filter by Class</label>
+        <select id="attClassFilter" onchange="renderAttModalStudents()" style="padding:8px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:14px;width:auto;">
+          <option value="">All Classes</option>
+        </select>
+      </div>
+      <div style="font-size:12px;color:var(--muted);margin-bottom:8px;">Click a status button for each student:</div>
+      <div id="attStudentRows"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('attendanceModal')">Cancel</button>
+      <button class="btn btn-success" onclick="saveAttendance()">💾 Save Attendance</button>
+    </div>
+  </div>
+</div>
+
+<!-- Submission Modal (Student) -->
+<div class="modal-overlay" id="submissionModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 id="submissionModalTitle">Submit Assessment</h3>
+      <button class="modal-close" onclick="closeModal('submissionModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="submissionAssessId">
+      <div id="submissionAssessInfo" style="background:var(--bg);border-radius:8px;padding:12px;margin-bottom:16px;"></div>
+      <div class="form-group"><label>Submission Link / URL</label><input type="text" id="subLink" placeholder="Paste your submission link (Google Drive, YouTube, etc.)"></div>
+      <div class="form-group"><label>Notes</label><textarea id="subNotes" rows="3" placeholder="Additional notes..."></textarea></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('submissionModal')">Cancel</button>
+      <button class="btn btn-primary" onclick="submitAssessment()">📤 Submit</button>
+    </div>
+  </div>
+</div>
+
+<!-- Session Modal -->
+<div class="modal-overlay" id="sessionModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 id="sessionModalTitle">Manage Sessions</h3>
+      <button class="modal-close" onclick="closeModal('sessionModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label>Session Name</label>
+        <input type="text" id="sessionName" placeholder="e.g. Sesi I 2026/2027">
+      </div>
+      <button class="btn btn-primary" onclick="addSession()">Add Session</button>
+      <hr style="margin:16px 0;border-color:var(--border);">
+      <h4 style="margin-bottom:12px;font-size:14px;">Existing Sessions</h4>
+      <div id="sessionListAdmin"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Matrix Modal -->
+<div class="modal-overlay" id="matrixModal">
+  <div class="modal modal-xl">
+    <div class="modal-header">
+      <h3 id="matrixModalTitle">Submission Matrix</h3>
+      <button class="modal-close" onclick="closeModal('matrixModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div id="matrixContent"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Confirm Delete Modal -->
+<div class="modal-overlay" id="confirmModal">
+  <div class="modal" style="max-width:400px;">
+    <div class="modal-header">
+      <h3>⚠️ Confirm Delete</h3>
+      <button class="modal-close" onclick="closeModal('confirmModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <p id="confirmMsg">Are you sure?</p>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('confirmModal')">Cancel</button>
+      <button class="btn btn-danger" id="confirmOkBtn">Delete</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div id="toast" style="display:none;position:fixed;bottom:24px;right:24px;z-index:9999;background:#1e293b;color:#fff;padding:12px 20px;border-radius:10px;font-size:13px;font-weight:600;box-shadow:0 8px 30px rgba(0,0,0,0.3);max-width:320px;"></div>
+
+<script>
+// ============================================================
+//  DATA LAYER — localStorage key: SUE10031_Dashboard
+// ============================================================
+const STORAGE_KEY = 'SUE10031_Dashboard';
+const ARCHIVE_KEY = 'SUE10031_Archive';
+
+function loadData() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return defaultData();
+    const d = JSON.parse(raw);
+    // migrate: ensure all keys exist for older saved data
+    if (!d.topics)            d.topics = [];
+    if (!d.classes)           d.classes = [];
+    if (!d.students)          d.students = [];
+    if (!d.materials)         d.materials = [];
+    if (!d.assessments)       d.assessments = [];
+    if (!d.submissions)       d.submissions = [];
+    if (!d.attendance)        d.attendance = [];
+    if (!d.sessions)          d.sessions = defaultData().sessions;
+    if (!d.materialProgress)  d.materialProgress = {};
+    // migrate: ensure order fields
+    (d.topics||[]).forEach((t,i)=>{ if(t.order===undefined) t.order=i; });
+    (d.materials||[]).forEach((m,i)=>{ if(m.order===undefined) m.order=i; });
+    return d;
+  } catch(e) { return defaultData(); }
+}
+
+function saveData(d) {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(d));
+}
+
+function defaultData() {
+  return {
+    sessions: [
+      { id: 's1', name: 'Sesi I 2025/2026', active: true },
+      { id: 's2', name: 'Sesi II 2025/2026', active: false },
+      { id: 's3', name: 'Sesi I 2026/2027', active: false }
+    ],
+    classes: [],
+    students: [],
+    topics: [],
+    materials: [],
+    assessments: [],
+    submissions: [],
+    attendance: [],
+    materialProgress: {}
+  };
+}
+
+let DB = loadData();
+
+// ============================================================
+//  AUTH
+// ============================================================
+const ADMIN_CREDS = { username: 'msdiyanasuhaimi@gmail.com', password: 'p@ssword.123', name: 'Admin', role: 'admin' };
+let currentUser = null;
+
+function doLogin() {
+  const u = document.getElementById('loginUser').value.trim();
+  const p = document.getElementById('loginPass').value.trim();
+  const err = document.getElementById('loginError');
+  err.style.display = 'none';
+
+  // Admin check
+  if (u === ADMIN_CREDS.username && p === ADMIN_CREDS.password) {
+    currentUser = { ...ADMIN_CREDS };
+    startApp();
+    return;
+  }
+
+  // Student check
+  const student = DB.students.find(s => s.studentId === u && s.ic === p);
+  if (student) {
+    currentUser = { username: student.studentId, name: student.name, role: 'student', studentId: student.studentId, classId: student.classId };
+    startApp();
+    return;
+  }
+
+  err.style.display = 'block';
+}
+
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter' && document.getElementById('loginScreen').style.display !== 'none' &&
+      !document.getElementById('loginScreen').classList.contains('hidden')) {
+    doLogin();
+  }
+});
+
+// Lightweight session shared with quiz pages (quiz-*.html) so they can prefill the student
+const SESSION_KEY = 'SUE10031_Session';
+function saveSession() {
+  if (!currentUser) { localStorage.removeItem(SESSION_KEY); return; }
+  const cls = currentUser.classId ? DB.classes.find(c => c.id === currentUser.classId) : null;
+  localStorage.setItem(SESSION_KEY, JSON.stringify({
+    role: currentUser.role, name: currentUser.name, studentId: currentUser.studentId || '',
+    classId: currentUser.classId || '', className: cls ? cls.name : '', at: new Date().toISOString()
+  }));
+}
+
+function doLogout() {
+  currentUser = null;
+  localStorage.removeItem(SESSION_KEY);
+  document.getElementById('appShell').style.display = 'none';
+  document.getElementById('loginScreen').style.display = 'flex';
+  document.getElementById('loginUser').value = '';
+  document.getElementById('loginPass').value = '';
+}
+
+// ============================================================
+//  APP INIT
+// ============================================================
+function startApp() {
+  saveSession();
+  document.getElementById('loginScreen').style.display = 'none';
+  document.getElementById('appShell').style.display = 'block';
+  renderSidebar();
+  updateSessionBadge();
+  if (currentUser.role === 'admin') {
+    navigateTo('dashboard');
+  } else {
+    navigateTo('myMaterials');
+  }
+}
+
+function getActiveSession() {
+  return DB.sessions.find(s => s.active) || null;
+}
+
+function updateSessionBadge() {
+  const sess = getActiveSession();
+  document.getElementById('activeSessionBadge').textContent = sess ? sess.name : 'No Active Session';
+  document.getElementById('topbarSessionInfo').textContent = sess ? '📅 ' + sess.name : '';
+}
+
+function renderSidebar() {
+  const isAdmin = currentUser.role === 'admin';
+  const nav = document.getElementById('sidebarNav');
+  const avatar = document.getElementById('userAvatar');
+  const dispName = document.getElementById('userDisplayName');
+  const roleB = document.getElementById('userRoleBadge');
+
+  const initials = currentUser.name.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+  avatar.textContent = initials;
+  dispName.textContent = currentUser.name;
+  roleB.textContent = isAdmin ? '👑 Admin' : '🎓 Student';
+
+  let html = '';
+  if (isAdmin) {
+    html += navGroup('overview', 'Overview',
+      navItem('dashboard','🏠','Dashboard','dashboard') +
+      navItem('sessions','📅','Sessions','sessions')
+    );
+    html += navGroup('management', 'Management',
+      navItem('classes','🏫','Classes','classes') +
+      navItem('students','👥','Students','students')
+    );
+    html += navGroup('learning', 'Learning',
+      navItem('materials','📚','Teaching Materials','materials')
+    );
+    html += navGroup('assessment', 'Assessment',
+      navItem('assessments','📝','Assessments','assessments') +
+      navItem('submissions','📊','Submission Matrix','submissions') +
+      navItem('quizResults','🧪','Quiz Results','quizResults') +
+      navItem('attendance','🗓️','Attendance','attendance')
+    );
+  } else {
+    html += navGroup('mylearning', 'My Learning',
+      navItem('myMaterials','📚','Learning Materials','myMaterials') +
+      navItem('myQuiz','🧪','Grammar Quiz','myQuiz')
+    );
+    html += navGroup('myassessments', 'My Assessments',
+      navItem('myAssessments','📝','My Assessments','myAssessments') +
+      navItem('myAttendance','🗓️','My Attendance','myAttendance') +
+      navItem('myProgress','📈','My Progress','myProgress')
+    );
+  }
+
+  nav.innerHTML = html;
+
+  // Show crown immediately if student has 100% material completion
+  if (!isAdmin) {
+    // defer one tick so the DOM is ready
+    setTimeout(updateAvatarCrown, 0);
+  }
+}
+
+// Track which nav groups are open (persisted across re-renders)
+const _navGroupOpen = {};
+
+function navGroup(id, label, itemsHtml) {
+  // default open on first render
+  if (_navGroupOpen[id] === undefined) _navGroupOpen[id] = true;
+  const isOpen = _navGroupOpen[id];
+  return `<div class="nav-group${isOpen?' open':''}" id="navg-${id}">
+    <div class="nav-group-header" onclick="toggleNavGroup('${id}')">
+      <span>${label}</span><span class="nav-group-chevron">▼</span>
+    </div>
+    <div class="nav-group-body">${itemsHtml}</div>
+  </div>`;
+}
+
+function toggleNavGroup(id) {
+  _navGroupOpen[id] = !_navGroupOpen[id];
+  const el = document.getElementById('navg-' + id);
+  if (el) el.classList.toggle('open', _navGroupOpen[id]);
+}
+
+function navItem(id, icon, label, page) {
+  return `<div class="nav-item" id="nav-${id}" onclick="navigateTo('${page}')">
+    <span class="nav-icon">${icon}</span>
+    <span class="nav-label">${label}</span>
+    <span class="nav-tooltip">${label}</span>
+  </div>`;
+}
+
+function toggleSidebar() {
+  const sidebar = document.getElementById('sidebar');
+  const main    = document.querySelector('.main');
+  sidebar.classList.toggle('collapsed');
+  main.classList.toggle('sidebar-collapsed');
+}
+
+function navigateTo(page) {
+  document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+  const navEl = document.getElementById('nav-' + page);
+  if (navEl) navEl.classList.add('active');
+
+  const titles = {
+    dashboard: '🏠 Dashboard',
+    sessions: '📅 Session Management',
+    classes: '🏫 Class Management',
+    students: '👥 Students',
+    materials: '📚 Teaching & Learning Materials',
+    assessments: '📝 Assessments',
+    submissions: '📊 Submission Matrix',
+    quizResults: '🧪 Quiz Results',
+    attendance: '🗓️ Attendance',
+    myMaterials: '📚 Learning Materials',
+    myQuiz: '🧪 Grammar Quiz',
+    myAssessments: '📝 My Assessments',
+    myAttendance: '🗓️ My Attendance',
+    myProgress: '📈 My Progress'
+  };
+  document.getElementById('pageTitle').textContent = titles[page] || page;
+
+  const content = document.getElementById('mainContent');
+  const renders = {
+    dashboard: renderDashboard,
+    sessions: renderSessions,
+    classes: renderClasses,
+    students: renderStudents,
+    materials: renderMaterials,
+    assessments: renderAssessments,
+    submissions: renderSubmissions,
+    quizResults: renderQuizResults,
+    attendance: renderAttendance,
+    myMaterials: renderMyMaterials,
+    myQuiz: renderMyQuiz,
+    myAssessments: renderMyAssessments,
+    myAttendance: renderMyAttendance,
+    myProgress: renderMyProgress
+  };
+  if (renders[page]) renders[page]();
+}
+
+// ============================================================
+//  DASHBOARD PAGE (Admin)
+// ============================================================
+function renderDashboard() {
+  const sess = getActiveSession();
+  const totalClasses    = DB.classes.length;
+  const totalStudents   = DB.students.length;
+  const totalAssessments= DB.assessments.length;
+  const completedSubs   = DB.submissions.filter(s=>s.status==='Completed').length;
+  const totalSubs       = DB.submissions.length;
+
+  // ── Attendance chart data ──
+  const attRecords = DB.attendance || [];
+  const presentHrs = attRecords.filter(a=>a.status==='Present').reduce((s,a)=>s+(+a.hours||0),0);
+  const absentHrs  = attRecords.filter(a=>a.status==='Absent').reduce((s,a)=>s+(+a.hours||0),0);
+  const mcHrs      = attRecords.filter(a=>a.status==='MC').reduce((s,a)=>s+(+a.hours||0),0);
+  const actHrs     = attRecords.filter(a=>a.status==='Students Activity').reduce((s,a)=>s+(+a.hours||0),0);
+  const attPieData = [
+    {label:'Present',         val:presentHrs, color:'#059669'},
+    {label:'Absent',          val:absentHrs,  color:'#dc2626'},
+    {label:'MC',              val:mcHrs,      color:'#d97706'},
+    {label:'Student Activity',val:actHrs,     color:'#0891b2'},
+  ].filter(d=>d.val>0);
+
+  // ── Assessment completion chart ──
+  const cmpPieData = [
+    {label:'Completed',    val:DB.submissions.filter(s=>s.status==='Completed').length,    color:'#059669'},
+    {label:'Submitted',    val:DB.submissions.filter(s=>s.status==='Submitted').length,    color:'#3b82f6'},
+    {label:'Incomplete',   val:DB.submissions.filter(s=>s.status==='Incomplete').length,   color:'#d97706'},
+    {label:'No Submission',val:DB.submissions.filter(s=>s.status==='No Submission').length,color:'#dc2626'},
+  ].filter(d=>d.val>0);
+
+  // ── Materials engagement: count unique students who have at least one submission ──
+  const engagedStudents = new Set(DB.submissions.map(s=>s.studentId)).size;
+  const notEngaged      = Math.max(0, totalStudents - engagedStudents);
+  const engPieData = [
+    {label:'Engaged',     val:engagedStudents, color:'#3b82f6'},
+    {label:'Not Engaged', val:notEngaged,      color:'#e2e8f0'},
+  ].filter(d=>d.val>0);
+
+  // ── Weightage summary ──
+  const totalW = DB.assessments.reduce((s,a)=>s+(+a.weightage||0),0);
+
+  document.getElementById('mainContent').innerHTML = `
+    <div class="stats-grid">
+      <div class="stat-card"><div class="stat-label">Active Session</div><div class="stat-value" style="font-size:15px;padding-top:4px;">${sess ? sess.name : '—'}</div></div>
+      <div class="stat-card"><div class="stat-label">Classes</div><div class="stat-value">${totalClasses}</div></div>
+      <div class="stat-card"><div class="stat-label">Students</div><div class="stat-value">${totalStudents}</div></div>
+      <div class="stat-card"><div class="stat-label">Assessments</div><div class="stat-value">${totalAssessments}</div><div class="stat-sub">Weightage total: <strong style="color:${Math.abs(totalW-100)<0.01?'var(--success)':'var(--danger)'}">${totalW.toFixed(1)}%</strong></div></div>
+      <div class="stat-card"><div class="stat-label">Completion Rate</div><div class="stat-value">${totalSubs>0?Math.round((completedSubs/totalSubs)*100):0}%</div><div class="stat-sub">${completedSubs} of ${totalSubs} submissions</div></div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:16px;">
+      <div class="card">
+        <div class="card-title" style="margin-bottom:14px;">🗓️ Attendance Hours</div>
+        ${attPieData.length===0
+          ? '<p class="text-muted">No attendance recorded yet.</p>'
+          : `<div class="chart-wrap">${svgPie(attPieData,80)}${legendHtml(attPieData)}</div>`}
+      </div>
+      <div class="card">
+        <div class="card-title" style="margin-bottom:14px;">📝 Assessment Completion</div>
+        ${cmpPieData.length===0
+          ? '<p class="text-muted">No submissions yet.</p>'
+          : `<div class="chart-wrap">${svgPie(cmpPieData,80)}${legendHtml(cmpPieData)}</div>`}
+      </div>
+      <div class="card">
+        <div class="card-title" style="margin-bottom:14px;">📚 Student Engagement</div>
+        ${totalStudents===0
+          ? '<p class="text-muted">No students enrolled.</p>'
+          : `<div class="chart-wrap">${svgPie(engPieData,80)}${legendHtml(engPieData)}</div>`}
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;">
+      <div class="card">
+        <div class="card-header"><div class="card-title">📊 Assessment Weightage</div></div>
+        ${DB.assessments.length===0 ? '<p class="text-muted">No assessments yet.</p>' :
+          DB.assessments.map(a=>`
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid var(--border);">
+              <div style="font-size:13px;font-weight:600;">${a.title}</div>
+              <span class="badge badge-student">${a.weightage||0}%</span>
+            </div>`).join('')
+          + `<div style="padding:8px 0;font-weight:700;font-size:13px;">Total: <span style="color:${Math.abs(totalW-100)<0.01?'var(--success)':'var(--danger)'}">${totalW.toFixed(1)}%</span></div>`}
+      </div>
+      <div class="card">
+        <div class="card-header"><div class="card-title">🏫 Classes Overview</div></div>
+        ${DB.classes.length === 0 ? '<p class="text-muted">No classes yet. <a href="#" onclick="navigateTo(\'classes\')">Create one</a></p>' :
+          DB.classes.map(cls => {
+            const count = DB.students.filter(s=>s.classId===cls.id).length;
+            return `<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border);">
+              <div><div style="font-weight:600;font-size:13px;">${cls.name}</div><div class="text-muted">${cls.section||''}</div></div>
+              <span class="badge badge-student">${count} students</span>
+            </div>`;
+          }).join('')}
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header"><div class="card-title">✅ Assessment Completion Rate</div></div>
+      ${DB.assessments.length===0 ? '<p class="text-muted">No assessments yet.</p>' :
+        DB.assessments.map(a => {
+          const students = a.classId==='all' ? DB.students : DB.students.filter(s=>s.classId===a.classId);
+          const total = students.length;
+          const subs = DB.submissions.filter(s=>s.assessmentId===a.id);
+          const completed  = subs.filter(s=>s.status==='Completed').length;
+          const submitted  = subs.filter(s=>s.status==='Submitted').length;
+          const incomplete = subs.filter(s=>s.status==='Incomplete').length;
+          const noSub      = Math.max(0, total - subs.length);
+          const pct = total > 0 ? Math.round((completed / total) * 100) : 0;
+          const submittedPct  = total > 0 ? Math.round((submitted  / total) * 100) : 0;
+          const incompletePct = total > 0 ? Math.round((incomplete / total) * 100) : 0;
+          const noSubPct      = total > 0 ? Math.round((noSub      / total) * 100) : 0;
+          const cls = DB.classes.find(c=>c.id===a.classId);
+          return `<div style="padding:10px 0;border-bottom:1px solid var(--border);">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+              <div>
+                <span style="font-size:13px;font-weight:600;">${a.title}</span>
+                <span class="text-muted" style="font-size:12px;margin-left:8px;">${cls?cls.name:'All Classes'} · ${total} students</span>
+              </div>
+              <span style="font-size:13px;font-weight:700;color:${pct>=80?'var(--success)':pct>=50?'var(--warning)':'var(--danger)'};">${pct}% completed</span>
+            </div>
+            <div style="height:12px;border-radius:6px;overflow:hidden;background:var(--border);display:flex;">
+              <div style="width:${pct}%;background:#059669;transition:width .4s;" title="Completed: ${completed}"></div>
+              <div style="width:${submittedPct}%;background:#3b82f6;transition:width .4s;" title="Submitted: ${submitted}"></div>
+              <div style="width:${incompletePct}%;background:#d97706;transition:width .4s;" title="Incomplete: ${incomplete}"></div>
+              <div style="width:${noSubPct}%;background:#e5e7eb;transition:width .4s;" title="No Submission: ${noSub}"></div>
+            </div>
+            <div style="display:flex;gap:14px;margin-top:5px;flex-wrap:wrap;">
+              <span style="font-size:11px;color:#059669;">● Completed ${completed}</span>
+              <span style="font-size:11px;color:#3b82f6;">● Submitted ${submitted}</span>
+              <span style="font-size:11px;color:#d97706;">● Incomplete ${incomplete}</span>
+              <span style="font-size:11px;color:var(--muted);">● No Submission ${noSub}</span>
+            </div>
+          </div>`;
+        }).join('')}
+    </div>`;
+}
+
+// SVG Pie Chart helper
+function svgPie(data, r) {
+  const total = data.reduce((s,d)=>s+d.val,0);
+  if (total===0) return '';
+  const cx=r+4, cy=r+4, size=(r+4)*2;
+  let angle = -Math.PI/2, paths='';
+  data.forEach(d => {
+    const slice = (d.val/total) * 2 * Math.PI;
+    const x1 = cx + r*Math.cos(angle), y1 = cy + r*Math.sin(angle);
+    angle += slice;
+    const x2 = cx + r*Math.cos(angle), y2 = cy + r*Math.sin(angle);
+    const large = slice > Math.PI ? 1 : 0;
+    paths += `<path d="M${cx},${cy} L${x1.toFixed(2)},${y1.toFixed(2)} A${r},${r} 0 ${large},1 ${x2.toFixed(2)},${y2.toFixed(2)} Z" fill="${d.color}"/>`;
+  });
+  return `<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}">${paths}</svg>`;
+}
+function legendHtml(data) {
+  const total = data.reduce((s,d)=>s+d.val,0);
+  return `<div class="chart-legend">${data.map(d=>`
+    <div class="legend-item">
+      <div class="legend-dot" style="background:${d.color}"></div>
+      <span>${d.label}: <strong>${d.val}</strong> (${Math.round(d.val/total*100)}%)</span>
+    </div>`).join('')}</div>`;
+}
+
+// ============================================================
+//  SESSIONS
+// ============================================================
+function renderSessions() {
+  const html = `
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">📅 Academic Sessions</div>
+        <button class="btn btn-primary btn-sm" onclick="openSessionModal()">+ Add Session</button>
+      </div>
+      <p style="font-size:13px;color:var(--muted);margin-bottom:16px;">The active session is shown throughout the dashboard. Only one session can be active at a time.</p>
+      <div class="session-list">
+        ${DB.sessions.map(s=>`
+          <div class="flex items-center gap-2">
+            <div class="session-pill ${s.active?'active':''}" onclick="setActiveSession('${s.id}')">${s.name}</div>
+            <button class="btn btn-danger btn-sm" onclick="deleteSession('${s.id}')">✕</button>
+            ${s.active ? '<span style="font-size:11px;color:var(--success);font-weight:700;">✔ ACTIVE</span>' : ''}
+          </div>`).join('')}
+      </div>
+    </div>`;
+  document.getElementById('mainContent').innerHTML = html;
+}
+
+function openSessionModal() {
+  renderSessionAdmin();
+  openModal('sessionModal');
+}
+
+function renderSessionAdmin() {
+  document.getElementById('sessionListAdmin').innerHTML = DB.sessions.map(s=>`
+    <div class="flex items-center gap-2 mb-2">
+      <input type="text" value="${s.name}" id="sess-name-${s.id}" style="flex:1;padding:8px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:14px;">
+      <button class="btn btn-secondary btn-sm" onclick="editSessionName('${s.id}')">Save</button>
+      <button class="btn btn-danger btn-sm" onclick="deleteSession('${s.id}')">✕</button>
+      ${s.active ? '<span style="color:var(--success);font-weight:700;font-size:12px;">✔ Active</span>' : `<button class="btn btn-sm" style="background:#d1fae5;color:#065f46;" onclick="setActiveSession('${s.id}')">Set Active</button>`}
+    </div>`).join('');
+}
+
+function addSession() {
+  const name = document.getElementById('sessionName').value.trim();
+  if (!name) { showToast('Please enter a session name.'); return; }
+  DB.sessions.push({ id: uid(), name, active: false });
+  saveData(DB);
+  document.getElementById('sessionName').value = '';
+  renderSessionAdmin();
+  if (document.getElementById('mainContent').innerHTML.includes('Academic Sessions')) renderSessions();
+  showToast('Session added!');
+}
+
+function editSessionName(id) {
+  const val = document.getElementById('sess-name-' + id).value.trim();
+  if (!val) return;
+  const s = DB.sessions.find(s=>s.id===id);
+  if (s) { s.name = val; saveData(DB); updateSessionBadge(); renderSessionAdmin(); showToast('Session updated!'); }
+}
+
+function setActiveSession(id) {
+  DB.sessions.forEach(s => s.active = (s.id === id));
+  saveData(DB);
+  updateSessionBadge();
+  renderSessions();
+  showToast('Active session updated!');
+}
+
+function deleteSession(id) {
+  showConfirm('Delete this session?', () => {
+    DB.sessions = DB.sessions.filter(s=>s.id!==id);
+    saveData(DB);
+    updateSessionBadge();
+    if (document.getElementById('sessionListAdmin')) renderSessionAdmin();
+    renderSessions();
+    showToast('Session deleted.');
+  });
+}
+
+// ============================================================
+//  CLASSES
+// ============================================================
+function renderClasses() {
+  const html = `
+    <div class="card-header" style="margin-bottom:16px;">
+      <div></div>
+      <button class="btn btn-primary" onclick="openClassModal()">+ Create Class</button>
+    </div>
+    ${DB.classes.length === 0 ? `<div class="empty-state"><div class="empty-icon">🏫</div><h3>No Classes Yet</h3><p>Create your first class to get started.</p></div>` :
+      `<div class="class-grid">${DB.classes.map(cls => {
+        const count = DB.students.filter(s=>s.classId===cls.id).length;
+        return `<div class="class-card" onclick="openClassDetail('${cls.id}')">
+          <div class="class-actions">
+            <button class="btn btn-sm btn-secondary" onclick="event.stopPropagation();openClassModal('${cls.id}')">✏️</button>
+            <button class="btn btn-sm btn-danger" onclick="event.stopPropagation();deleteClass('${cls.id}')">🗑️</button>
+          </div>
+          <div class="class-name">${cls.name}</div>
+          <div class="class-meta">${cls.section||'No section'} ${cls.description ? '· '+cls.description : ''}</div>
+          <div class="class-count">👥 ${count} students</div>
+          <div style="margin-top:10px;">
+            <button class="btn btn-sm btn-info" onclick="event.stopPropagation();openStudentModal('${cls.id}')">Manage Students</button>
+          </div>
+        </div>`;
+      }).join('')}</div>`}`;
+  document.getElementById('mainContent').innerHTML = html;
+}
+
+function openClassModal(id) {
+  if (id) {
+    const cls = DB.classes.find(c=>c.id===id);
+    document.getElementById('classModalId').value = cls.id;
+    document.getElementById('classModalName').value = cls.name;
+    document.getElementById('classModalSection').value = cls.section||'';
+    document.getElementById('classModalDesc').value = cls.description||'';
+    document.getElementById('classModalTitle').textContent = 'Edit Class';
+  } else {
+    document.getElementById('classModalId').value = '';
+    document.getElementById('classModalName').value = '';
+    document.getElementById('classModalSection').value = '';
+    document.getElementById('classModalDesc').value = '';
+    document.getElementById('classModalTitle').textContent = 'Create Class';
+  }
+  openModal('classModal');
+}
+
+function saveClass() {
+  const id = document.getElementById('classModalId').value;
+  const name = document.getElementById('classModalName').value.trim();
+  if (!name) { showToast('Class name is required.'); return; }
+  const obj = { name, section: document.getElementById('classModalSection').value.trim(), description: document.getElementById('classModalDesc').value.trim() };
+  if (id) { const cls = DB.classes.find(c=>c.id===id); if(cls) Object.assign(cls, obj); }
+  else { DB.classes.push({ id: uid(), ...obj }); }
+  saveData(DB);
+  closeModal('classModal');
+  renderClasses();
+  populateClassSelects();
+  showToast('Class saved!');
+}
+
+function deleteClass(id) {
+  showConfirm('Delete this class and all its students?', () => {
+    DB.classes = DB.classes.filter(c=>c.id!==id);
+    DB.students = DB.students.filter(s=>s.classId!==id);
+    saveData(DB);
+    renderClasses();
+    showToast('Class deleted.');
+  });
+}
+
+function openClassDetail(id) {
+  openStudentModal(id);
+}
+
+// ============================================================
+//  STUDENTS
+// ============================================================
+let currentClassForStudents = null;
+
+function renderStudents() {
+  let html = `<div class="card">
+    <div class="card-header"><div class="card-title">👥 All Students</div></div>
+    ${DB.classes.length === 0 ? '<div class="alert alert-warning">Create a class first before adding students.</div>' : ''}
+    <div class="flex gap-2 mb-3">
+      <select id="studentClassFilter" onchange="renderStudentTable()" style="padding:8px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:14px;">
+        <option value="">All Classes</option>
+        ${DB.classes.map(c=>`<option value="${c.id}">${c.name}</option>`).join('')}
+      </select>
+      <button class="btn btn-primary btn-sm" onclick="openStudentModal(document.getElementById('studentClassFilter').value||null)">+ Add Students</button>
+    </div>
+    <div id="mainStudentTable"></div>
+  </div>`;
+  document.getElementById('mainContent').innerHTML = html;
+  renderStudentTable();
+}
+
+function renderStudentTable() {
+  const filterClass = document.getElementById('studentClassFilter')?.value || '';
+  let students = filterClass ? DB.students.filter(s=>s.classId===filterClass) : DB.students;
+  const container = document.getElementById('mainStudentTable');
+  if (!container) return;
+  if (students.length === 0) { container.innerHTML = '<div class="empty-state"><div class="empty-icon">👥</div><h3>No Students</h3><p>Add students via class management.</p></div>'; return; }
+  container.innerHTML = `<div class="table-wrap"><table>
+    <thead><tr><th>Student ID</th><th>Name</th><th>Class</th><th>Email</th><th>Actions</th></tr></thead>
+    <tbody>${students.map(st=>{
+      const cls = DB.classes.find(c=>c.id===st.classId);
+      return `<tr><td>${st.studentId}</td><td>${st.name}</td><td>${cls?cls.name:'—'}</td><td>${st.email||'—'}</td>
+      <td><button class="btn btn-danger btn-sm" onclick="deleteStudent('${st.id}')">Remove</button></td></tr>`;
+    }).join('')}</tbody>
+  </table></div>`;
+}
+
+function openStudentModal(classId) {
+  currentClassForStudents = classId || null;
+  const cls = classId ? DB.classes.find(c=>c.id===classId) : null;
+  document.getElementById('studentModalTitle').textContent = cls ? `Students — ${cls.name}` : 'Manage Students';
+  renderStudentListTab();
+  openModal('studentModal');
+  // default to bulk tab
+  switchTab('studentTabBulk','studentTabs', document.querySelector('#studentModal .tab'));
+}
+
+function renderStudentListTab() {
+  const container = document.getElementById('studentListContainer');
+  const students = currentClassForStudents ? DB.students.filter(s=>s.classId===currentClassForStudents) : DB.students;
+  if (students.length === 0) { container.innerHTML = '<p class="text-muted">No students yet.</p>'; return; }
+  container.innerHTML = `<div class="table-wrap"><table>
+    <thead><tr><th>Student ID</th><th>Name</th><th>IC</th><th>Email</th><th></th></tr></thead>
+    <tbody>${students.map(s=>`<tr><td>${s.studentId}</td><td>${s.name}</td><td>${s.ic}</td><td>${s.email||'—'}</td>
+    <td><button class="btn btn-danger btn-sm" onclick="deleteStudent('${s.id}')">✕</button></td></tr>`).join('')}
+    </tbody></table></div>`;
+}
+
+function addStudentManual() {
+  const studentId = document.getElementById('manStudentId').value.trim();
+  const name = document.getElementById('manStudentName').value.trim();
+  const ic = document.getElementById('manStudentIC').value.trim();
+  const email = document.getElementById('manStudentEmail').value.trim();
+  if (!studentId || !name || !ic) { showToast('Student ID, Name and IC are required.'); return; }
+  if (DB.students.find(s=>s.studentId===studentId)) { showToast('Student ID already exists.'); return; }
+  DB.students.push({ id: uid(), studentId, name, ic, email, classId: currentClassForStudents || '' });
+  saveData(DB);
+  document.getElementById('manStudentId').value = '';
+  document.getElementById('manStudentName').value = '';
+  document.getElementById('manStudentIC').value = '';
+  document.getElementById('manStudentEmail').value = '';
+  renderStudentListTab();
+  if(document.getElementById('mainStudentTable')) renderStudentTable();
+  showToast('Student added!');
+}
+
+function deleteStudent(id) {
+  showConfirm('Remove this student?', () => {
+    DB.students = DB.students.filter(s=>s.id!==id);
+    saveData(DB);
+    renderStudentListTab();
+    if(document.getElementById('mainStudentTable')) renderStudentTable();
+    showToast('Student removed.');
+  });
+}
+
+// File upload
+function dragOver(e) { e.preventDefault(); document.getElementById('uploadZone').classList.add('drag'); }
+function dropFile(e) { e.preventDefault(); document.getElementById('uploadZone').classList.remove('drag'); const f=e.dataTransfer.files[0]; if(f) processFile(f); }
+function handleFileUpload(e) { const f=e.target.files[0]; if(f) processFile(f); document.getElementById('fileUpload').value=''; }
+
+function processFile(file) {
+  const ext = file.name.split('.').pop().toLowerCase();
+  if (ext === 'csv') {
+    const reader = new FileReader();
+    reader.onload = (e) => parseCSV(e.target.result);
+    reader.readAsText(file);
+  } else if (ext === 'xlsx') {
+    showToast('XLSX detected. For best results, please convert to CSV and re-upload. (XLSX parsing requires an external library not loaded here.)');
+    // Show a helpful note
+    document.getElementById('uploadPreview').innerHTML = `<div class="alert alert-warning">XLSX upload: Please save your file as CSV first and re-upload, or use the manual entry tab.</div>`;
+  } else {
+    showToast('Unsupported file type. Please use CSV.');
+  }
+}
+
+function parseCSV(text) {
+  const lines = text.split(/\r?\n/).filter(l=>l.trim());
+  if (lines.length < 2) { showToast('File appears empty.'); return; }
+  const header = lines[0].split(',').map(h=>h.trim().toLowerCase().replace(/[^a-z0-9]/g,''));
+  const idIdx = header.findIndex(h=>h.includes('studentid')||h.includes('id')||h==='id');
+  const nameIdx = header.findIndex(h=>h.includes('name'));
+  const icIdx = header.findIndex(h=>h.includes('ic')||h.includes('password')||h.includes('pengenalan'));
+  const emailIdx = header.findIndex(h=>h.includes('email'));
+
+  if (idIdx<0||nameIdx<0||icIdx<0) {
+    document.getElementById('uploadPreview').innerHTML = `<div class="alert" style="background:#fee2e2;color:#991b1b;">Could not detect columns. Expected headers: Student ID, Name, IC Number. Found: ${lines[0]}</div>`;
+    return;
+  }
+
+  const parsed = [];
+  const errors = [];
+  for (let i=1;i<lines.length;i++) {
+    const cols = lines[i].split(',').map(c=>c.trim().replace(/^"|"$/g,''));
+    const sid = cols[idIdx]||'';
+    const nm = cols[nameIdx]||'';
+    const ic = cols[icIdx]||'';
+    if (!sid||!nm||!ic) { errors.push(`Row ${i+1}: missing fields`); continue; }
+    parsed.push({ id:uid(), studentId:sid, name:nm, ic, email:emailIdx>=0?(cols[emailIdx]||''):'', classId: currentClassForStudents||'' });
+  }
+
+  let preview = `<div class="alert alert-success">✅ Found <strong>${parsed.length}</strong> student(s) to import. ${errors.length>0?`<br>⚠️ ${errors.length} row(s) skipped.`:''}`;
+  if (parsed.length > 0) {
+    preview += `</div><div class="table-wrap" style="max-height:200px;overflow-y:auto;"><table><thead><tr><th>Student ID</th><th>Name</th><th>IC</th><th>Email</th></tr></thead><tbody>
+      ${parsed.map(s=>`<tr><td>${s.studentId}</td><td>${s.name}</td><td>${s.ic}</td><td>${s.email||'—'}</td></tr>`).join('')}
+    </tbody></table></div>
+    <button class="btn btn-success mt-2" onclick="importStudents(${JSON.stringify(parsed).split('"').join("'")})">✅ Confirm Import</button>`;
+  } else {
+    preview += `</div>`;
+  }
+  document.getElementById('uploadPreview').innerHTML = preview;
+}
+
+function importStudents(data) {
+  // data passed as escaped string — re-parse from storage
+  // Use a global temp instead
+  if (!window._importData) { showToast('Import error.'); return; }
+  const parsed = window._importData;
+  let added = 0, dupes = 0;
+  parsed.forEach(s => {
+    if (DB.students.find(ex=>ex.studentId===s.studentId)) { dupes++; }
+    else { DB.students.push(s); added++; }
+  });
+  saveData(DB);
+  document.getElementById('uploadPreview').innerHTML = `<div class="alert alert-success">✅ Imported ${added} student(s). ${dupes>0?`${dupes} duplicate(s) skipped.`:''}</div>`;
+  renderStudentListTab();
+  if(document.getElementById('mainStudentTable')) renderStudentTable();
+  showToast(`Imported ${added} students!`);
+  window._importData = null;
+}
+
+// Override parseCSV to store temp data
+function parseCSV(text) {
+  const lines = text.split(/\r?\n/).filter(l=>l.trim());
+  if (lines.length < 2) { showToast('File appears empty.'); return; }
+  const header = lines[0].split(',').map(h=>h.trim().toLowerCase().replace(/[^a-z0-9]/g,''));
+  const idIdx = header.findIndex(h=>h.includes('studentid')||h.includes('id'));
+  const nameIdx = header.findIndex(h=>h.includes('name'));
+  const icIdx = header.findIndex(h=>h.includes('ic')||h.includes('password')||h.includes('pengenalan'));
+  const emailIdx = header.findIndex(h=>h.includes('email'));
+
+  if (idIdx<0||nameIdx<0||icIdx<0) {
+    document.getElementById('uploadPreview').innerHTML = `<div class="alert" style="background:#fee2e2;color:#991b1b;">Could not detect columns. Expected: Student ID, Name, IC Number. Found: ${lines[0]}</div>`;
+    return;
+  }
+
+  const parsed = [];
+  const errors = [];
+  for (let i=1;i<lines.length;i++) {
+    const cols = splitCSVLine(lines[i]);
+    const sid = cols[idIdx]||'';
+    const nm = cols[nameIdx]||'';
+    const ic = cols[icIdx]||'';
+    if (!sid||!nm||!ic) { errors.push(`Row ${i+1}: missing fields`); continue; }
+    parsed.push({ id:uid(), studentId:sid, name:nm, ic, email:emailIdx>=0?(cols[emailIdx]||''):'', classId: currentClassForStudents||'' });
+  }
+
+  window._importData = parsed;
+
+  let preview = `<div class="alert alert-success">✅ Found <strong>${parsed.length}</strong> student(s) to import.${errors.length>0?` ⚠️ ${errors.length} row(s) skipped.`:''}</div>`;
+  if (parsed.length > 0) {
+    preview += `<div class="table-wrap" style="max-height:200px;overflow-y:auto;"><table><thead><tr><th>Student ID</th><th>Name</th><th>IC</th><th>Email</th></tr></thead><tbody>
+      ${parsed.map(s=>`<tr><td>${s.studentId}</td><td>${s.name}</td><td>${s.ic}</td><td>${s.email||'—'}</td></tr>`).join('')}
+    </tbody></table></div>
+    <button class="btn btn-success mt-2" onclick="confirmImport()">✅ Confirm Import ${parsed.length} Students</button>`;
+  }
+  document.getElementById('uploadPreview').innerHTML = preview;
+}
+
+function confirmImport() {
+  const parsed = window._importData;
+  if (!parsed || parsed.length===0) return;
+  let added=0, dupes=0;
+  parsed.forEach(s => {
+    if (DB.students.find(ex=>ex.studentId===s.studentId)) dupes++;
+    else { DB.students.push(s); added++; }
+  });
+  saveData(DB);
+  document.getElementById('uploadPreview').innerHTML = `<div class="alert alert-success">✅ Imported ${added} student(s).${dupes>0?` ${dupes} duplicate(s) skipped.`:''}</div>`;
+  renderStudentListTab();
+  if(document.getElementById('mainStudentTable')) renderStudentTable();
+  showToast(`Imported ${added} students!`);
+  window._importData = null;
+}
+
+function splitCSVLine(line) {
+  const result=[];let cur='';let inQ=false;
+  for(let i=0;i<line.length;i++){
+    if(line[i]==='"'){inQ=!inQ;}
+    else if(line[i]===','&&!inQ){result.push(cur.trim());cur='';}
+    else{cur+=line[i];}
+  }
+  result.push(cur.trim());
+  return result;
+}
+
+// ============================================================
+//  TOPICS & MATERIALS
+// ============================================================
+
+// ── file upload state ──
+let _matKind = 'file';
+let _matFileData = null;
+
+function matDragOver(e) { e.preventDefault(); document.getElementById('matUploadZone').classList.add('drag'); }
+function matDragLeave(e) { document.getElementById('matUploadZone').classList.remove('drag'); }
+function matDrop(e) {
+  e.preventDefault();
+  document.getElementById('matUploadZone').classList.remove('drag');
+  const f = e.dataTransfer.files[0];
+  if (f) readMatFile(f);
+}
+function handleMatFile(e) {
+  const f = e.target.files[0];
+  if (f) readMatFile(f);
+  e.target.value = '';
+}
+function readMatFile(file) {
+  const allowed = ['pdf','doc','docx','ppt','pptx','xls','xlsx'];
+  const ext = file.name.split('.').pop().toLowerCase();
+  if (!allowed.includes(ext)) { showToast('Unsupported file type. Allowed: PDF, Word, PowerPoint, Excel.'); return; }
+  const reader = new FileReader();
+  reader.onload = ev => {
+    _matFileData = { name: file.name, size: file.size, dataUrl: ev.target.result };
+    const el = document.getElementById('matFileChosen');
+    el.textContent = '✅ ' + file.name + ' (' + (file.size/1024).toFixed(1) + ' KB)';
+    el.style.display = 'block';
+    if (!document.getElementById('matTitle').value.trim())
+      document.getElementById('matTitle').value = file.name.replace(/\.[^.]+$/, '');
+  };
+  reader.readAsDataURL(file);
+}
+function selectMatKind(kind, btn) {
+  _matKind = kind;
+  document.querySelectorAll('.mat-kind-btn').forEach(b => b.classList.remove('sel'));
+  if (btn) btn.classList.add('sel');
+  document.getElementById('matKindFile').style.display = kind === 'file' ? '' : 'none';
+  document.getElementById('matKindUrl').style.display  = kind === 'url'  ? '' : 'none';
+}
+
+// ── icon helper ──
+function matIconInfo(m) {
+  if (m.kind === 'url') {
+    const u = (m.url||'').toLowerCase();
+    if (u.includes('youtube') || u.includes('youtu.be')) return { cls:'vid',   icon:'▶️' };
+    if (u.includes('mentimeter') || u.includes('menti.com')) return { cls:'act', icon:'📊' };
+    if (u.includes('canva'))  return { cls:'act',  icon:'🎨' };
+    if (u.includes('drive.google') || u.includes('docs.google')) return { cls:'link', icon:'📁' };
+    return { cls:'link', icon:'🔗' };
+  }
+  const ext = (m.fileName||'').split('.').pop().toLowerCase();
+  if (ext === 'pdf')                        return { cls:'pdf',   icon:'📕' };
+  if (['doc','docx'].includes(ext))         return { cls:'word',  icon:'📘' };
+  if (['ppt','pptx'].includes(ext))         return { cls:'ppt',   icon:'📙' };
+  if (['xls','xlsx'].includes(ext))         return { cls:'excel', icon:'📗' };
+  return { cls:'doc', icon:'📄' };
+}
+
+// ── topic CRUD ──
+function openTopicModal(id) {
+  if (id) {
+    const t = DB.topics.find(x=>x.id===id);
+    if (!t) return;
+    document.getElementById('topicModalId').value = t.id;
+    document.getElementById('topicNum').value     = t.num;
+    document.getElementById('topicName').value    = t.name;
+    document.getElementById('topicDesc').value    = t.desc||'';
+    document.getElementById('topicModalTitle').textContent = 'Edit Topic';
+  } else {
+    document.getElementById('topicModalId').value = '';
+    document.getElementById('topicNum').value     = DB.topics.length + 1;
+    document.getElementById('topicName').value    = '';
+    document.getElementById('topicDesc').value    = '';
+    document.getElementById('topicModalTitle').textContent = 'Add Topic';
+  }
+  openModal('topicModal');
+}
+function saveTopic() {
+  const id   = document.getElementById('topicModalId').value;
+  const num  = parseInt(document.getElementById('topicNum').value, 10);
+  const name = document.getElementById('topicName').value.trim();
+  if (!name)            { showToast('Topic title is required.'); return; }
+  if (isNaN(num)||num<1){ showToast('Enter a valid topic number.'); return; }
+  const obj = { num, name, desc: document.getElementById('topicDesc').value.trim() };
+  if (id) {
+    const t = DB.topics.find(x=>x.id===id);
+    if (t) Object.assign(t, obj);
+  } else {
+    DB.topics.push({ id:uid(), order: DB.topics.length, ...obj });
+  }
+  saveData(DB);
+  closeModal('topicModal');
+  renderMaterials();
+  showToast('Topic saved!');
+}
+function deleteTopic(id) {
+  showConfirm('Delete this topic and all its materials?', () => {
+    DB.topics    = DB.topics.filter(t=>t.id!==id);
+    DB.materials = DB.materials.filter(m=>m.topicId!==id);
+    saveData(DB);
+    renderMaterials();
+    showToast('Topic deleted.');
+  });
+}
+
+// ── material CRUD ──
+function openMaterialModal(topicId, matId) {
+  populateClassSelects('matClass');
+  _matKind = 'file';
+  _matFileData = null;
+  // reset kind UI
+  selectMatKind('file', document.querySelector('[data-kind="file"]'));
+  document.getElementById('matFileChosen').style.display = 'none';
+  document.getElementById('matFileChosen').textContent = '';
+  document.getElementById('matTitle').value = '';
+  document.getElementById('matUrl').value = '';
+  document.getElementById('matDesc').value = '';
+  document.getElementById('matCategory').value = 'material';
+  document.getElementById('matClass').value = 'all';
+  document.getElementById('materialModalId').value = '';
+  document.getElementById('materialModalTopicId').value = topicId || '';
+
+  if (matId) {
+    const m = DB.materials.find(x=>x.id===matId);
+    if (m) {
+      document.getElementById('materialModalId').value = m.id;
+      document.getElementById('matTitle').value = m.title;
+      document.getElementById('matDesc').value = m.description||'';
+      document.getElementById('matCategory').value = m.category||'material';
+      document.getElementById('matClass').value = m.classId||'all';
+      if (m.kind === 'url') {
+        selectMatKind('url', document.querySelector('[data-kind="url"]'));
+        document.getElementById('matUrl').value = m.url||'';
+      } else {
+        const el = document.getElementById('matFileChosen');
+        if (m.fileName) { el.textContent = '📎 ' + m.fileName; el.style.display = 'block'; }
+      }
+    }
+    document.getElementById('materialModalTitle').textContent = 'Edit Material';
+  } else {
+    document.getElementById('materialModalTitle').textContent = 'Add Material';
+  }
+  openModal('materialModal');
+}
+
+function saveMaterial() {
+  const id      = document.getElementById('materialModalId').value;
+  const topicId = document.getElementById('materialModalTopicId').value;
+  const title   = document.getElementById('matTitle').value.trim();
+  if (!title) { showToast('Title is required.'); return; }
+
+  const base = {
+    title,
+    kind:        _matKind,
+    category:    document.getElementById('matCategory').value,
+    description: document.getElementById('matDesc').value.trim(),
+    classId:     document.getElementById('matClass').value,
+    topicId:     topicId,
+    createdAt:   new Date().toISOString()
+  };
+
+  if (_matKind === 'file') {
+    if (!id && !_matFileData) { showToast('Please select a file to upload.'); return; }
+    if (_matFileData) {
+      base.fileName = _matFileData.name;
+      base.dataUrl  = _matFileData.dataUrl;
+    }
+  } else {
+    const url = document.getElementById('matUrl').value.trim();
+    if (!url) { showToast('Please enter a URL.'); return; }
+    base.url = url;
+  }
+
+  if (id) { const m=DB.materials.find(x=>x.id===id); if(m) Object.assign(m, base); }
+  else    { DB.materials.push({ id:uid(), order: DB.materials.filter(x=>x.topicId===topicId).length, ...base }); }
+
+  saveData(DB);
+  closeModal('materialModal');
+  renderMaterials();
+  // keep topic expanded
+  if (topicId) {
+    const acc = document.getElementById('tacc-' + topicId);
+    if (acc) acc.classList.add('open');
+  }
+  showToast('Material saved!');
+  _matFileData = null;
+}
+
+function deleteMaterial(id) {
+  const m = DB.materials.find(x=>x.id===id);
+  showConfirm('Delete this material?', () => {
+    DB.materials = DB.materials.filter(x=>x.id!==id);
+    saveData(DB);
+    renderMaterials();
+    if (m && m.topicId) {
+      const acc = document.getElementById('tacc-' + m.topicId);
+      if (acc) acc.classList.add('open');
+    }
+    showToast('Material deleted.');
+  });
+}
+
+// ── render ──
+function renderMaterials() {
+  populateClassSelects('matClass');
+  const classFilter = `<select id="matClassFilter" onchange="renderMaterialList()" style="padding:8px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:14px;">
+    <option value="">All Classes</option>
+    ${DB.classes.map(c=>`<option value="${c.id}">${c.name}</option>`).join('')}
+  </select>`;
+  document.getElementById('mainContent').innerHTML = `
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">📚 Teaching &amp; Learning Materials</div>
+        <div class="flex gap-2">${classFilter}<button class="btn btn-primary" onclick="openTopicModal()">+ Add Topic</button></div>
+      </div>
+      <div id="materialList"></div>
+    </div>`;
+  renderMaterialList();
+}
+
+// Helper: file extensions that get an "Open in new tab" button
+const MAT_OPENABLE_EXT = ['pdf','doc','docx','ppt','pptx','xls','xlsx','txt','png','jpg','jpeg','gif'];
+function matExt(m) { return (m.fileName||'').split('.').pop().toLowerCase(); }
+
+// Open a stored file material in a new browser tab.
+// Browsers block navigating a new tab straight to a data: URL, so the
+// base64 data is converted into a Blob and opened via an object URL.
+const _matBlobUrls = {};
+function getMaterialBlobUrl(m) {
+  if (_matBlobUrls[m.id]) return _matBlobUrls[m.id];
+  const [header, b64] = m.dataUrl.split(',');
+  const mimeMatch = header.match(/^data:([^;]+)/);
+  const mime = (mimeMatch && mimeMatch[1]) || 'application/octet-stream';
+  const bin = atob(b64);
+  const bytes = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+  const url = URL.createObjectURL(new Blob([bytes], { type: mime }));
+  _matBlobUrls[m.id] = url;
+  return url;
+}
+// Called from the onclick of an <a target="_blank"> link: swaps the href to a
+// blob URL and lets the browser follow it. A user-clicked link is not subject
+// to pop-up blocking, unlike window.open().
+function openMaterialInTab(link, matId) {
+  const m = DB.materials.find(x=>x.id===matId);
+  if (!m || !m.dataUrl) { showToast('File not available.'); return false; }
+  try {
+    link.href = getMaterialBlobUrl(m);
+  } catch (e) {
+    showToast('Unable to open file.');
+    return false;
+  }
+  trackMaterialOpen(matId);
+  return true;
+}
+
+// Helper: build Open + Download buttons for a file material (admin view)
+function matFileButtons(m) {
+  if (m.kind === 'url') {
+    return `<a class="mat-open-btn" href="${m.url}" target="_blank" rel="noopener">↗ Open</a>`;
+  }
+  if (!m.dataUrl) return '';
+  const openBtn = MAT_OPENABLE_EXT.includes(matExt(m))
+    ? `<a class="mat-open-btn" href="#" target="_blank" rel="noopener" onclick="return openMaterialInTab(this,'${m.id}')" title="Open in new tab" style="background:#f0fdf4;border-color:#86efac;color:#166534;">👁 Open</a>`
+    : '';
+  return openBtn + `<a class="mat-open-btn" href="${m.dataUrl}" download="${m.fileName||'file'}">⬇ Download</a>`;
+}
+
+function renderMaterialList() {
+  const filter    = document.getElementById('matClassFilter')?.value || '';
+  const container = document.getElementById('materialList');
+  if (!container) return;
+
+  // Topics sorted by order field (falls back to num for legacy data)
+  const topics = [...(DB.topics||[])].sort((a,b) => (a.order??a.num) - (b.order??b.num));
+
+  if (topics.length === 0) {
+    container.innerHTML = `<div class="empty-state"><div class="empty-icon">📚</div><h3>No Topics Yet</h3><p>Click <strong>+ Add Topic</strong> to create your first topic.</p></div>`;
+    return;
+  }
+
+  const catLabel = { material:'Teaching Material', activity:'Activity', reference:'Reference', video:'Video' };
+
+  container.innerHTML = topics.map(t => {
+    const allMats  = (DB.materials||[]).filter(m => m.topicId===t.id);
+    const dispMats = (filter ? allMats.filter(m => m.classId==='all' || m.classId===filter) : allMats)
+                      .sort((a,b) => (a.order??0) - (b.order??0));
+    const totalCount = allMats.length;
+    const countText  = totalCount === 0 ? 'No materials' : totalCount === 1 ? '1 material' : `${totalCount} materials`;
+
+    const matRows = dispMats.length === 0
+      ? `<div style="padding:12px 0;color:var(--muted);font-size:13px;">
+           No materials yet${filter ? ' for this class' : ''}.
+           <button class="btn btn-sm btn-primary" style="margin-left:8px;" onclick="openMaterialModal('${t.id}')">+ Add Material</button>
+         </div>`
+      : dispMats.map(m => {
+          const ic      = matIconInfo(m);
+          const cat     = catLabel[m.category] || m.category || '';
+          const clsName = m.classId === 'all' ? 'All Classes' : (DB.classes.find(c=>c.id===m.classId)?.name || '');
+          return `<div class="material-item" draggable="true" data-mat-id="${m.id}" data-topic-id="${t.id}"
+              ondragstart="onMatDragStart(event)" ondragover="onMatDragOver(event)"
+              ondragleave="onMatDragLeave(event)" ondrop="onMatDrop(event)">
+            <span class="drag-handle" title="Drag to reorder" onclick="event.stopPropagation()">⠿</span>
+            <div class="material-icon ${ic.cls}">${ic.icon}</div>
+            <div class="material-meta">
+              <div class="material-title">${esc(m.title)}</div>
+              <div class="material-type">${m.kind==='url' ? esc(m.url||'') : esc(m.fileName||'')}${m.description ? ' · '+esc(m.description) : ''}</div>
+            </div>
+            <span class="mat-cat-pill">${cat}</span>
+            <span style="font-size:11px;color:var(--muted);white-space:nowrap;">${clsName}</span>
+            <div class="material-actions">
+              ${matFileButtons(m)}
+              <button class="btn btn-sm btn-secondary" onclick="openMaterialModal('${t.id}','${m.id}')">✏️</button>
+              <button class="btn btn-sm btn-danger" onclick="deleteMaterial('${m.id}')">🗑️</button>
+            </div>
+          </div>`;
+        }).join('');
+
+    return `<div class="topic-accordion" id="tacc-${t.id}" draggable="true" data-topic-id="${t.id}"
+        ondragstart="onTopicDragStart(event)" ondragover="onTopicDragOver(event)"
+        ondragleave="onTopicDragLeave(event)" ondrop="onTopicDrop(event)">
+      <div class="topic-acc-header" onclick="toggleTopicAcc('${t.id}')">
+        <span class="topic-drag-handle" onclick="event.stopPropagation()" title="Drag to reorder">⠿</span>
+        <div class="topic-acc-num">${t.num}</div>
+        <div class="topic-acc-info">
+          <div class="topic-acc-name">${esc(t.name)}</div>
+          <div class="topic-acc-meta">${countText}${t.desc ? ' · '+esc(t.desc) : ''}</div>
+        </div>
+        <div class="topic-acc-actions" onclick="event.stopPropagation()">
+          <button class="btn btn-sm btn-primary" onclick="openMaterialModal('${t.id}')">+ Material</button>
+          <button class="btn btn-sm btn-secondary" onclick="openTopicModal('${t.id}')">✏️</button>
+          <button class="btn btn-sm btn-danger" onclick="deleteTopic('${t.id}')">🗑️</button>
+        </div>
+        <div class="topic-acc-chevron">▼</div>
+      </div>
+      <div class="topic-acc-body">${matRows}</div>
+    </div>`;
+  }).join('');
+}
+
+// ── Drag & drop — Materials ──────────────────────────────────
+let _dragMatId = null;
+function onMatDragStart(e) {
+  _dragMatId = e.currentTarget.dataset.matId;
+  e.dataTransfer.effectAllowed = 'move';
+  setTimeout(()=>e.currentTarget.classList.add('dragging'), 0);
+  e.stopPropagation();
+}
+function onMatDragOver(e) {
+  e.preventDefault(); e.stopPropagation();
+  e.dataTransfer.dropEffect = 'move';
+  e.currentTarget.classList.add('drag-over');
+}
+function onMatDragLeave(e) { e.currentTarget.classList.remove('drag-over'); }
+function onMatDrop(e) {
+  e.preventDefault(); e.stopPropagation();
+  const targetId = e.currentTarget.dataset.matId;
+  e.currentTarget.classList.remove('drag-over');
+  if (!_dragMatId || _dragMatId === targetId) { _dragMatId = null; return; }
+  const src = DB.materials.find(m=>m.id===_dragMatId);
+  const tgt = DB.materials.find(m=>m.id===targetId);
+  if (!src || !tgt || src.topicId !== tgt.topicId) { _dragMatId = null; return; }
+  const tmp = src.order; src.order = tgt.order; tgt.order = tmp;
+  saveData(DB);
+  _dragMatId = null;
+  const openIds = [...document.querySelectorAll('.topic-accordion.open')].map(el=>el.id);
+  renderMaterialList();
+  openIds.forEach(id=>{ const el=document.getElementById(id); if(el) el.classList.add('open'); });
+}
+
+// ── Drag & drop — Topics ──────────────────────────────────────
+let _dragTopicId = null;
+function onTopicDragStart(e) {
+  if (e.target.closest('.drag-handle,.material-item,.topic-acc-actions')) return; // don't steal inner drags
+  _dragTopicId = e.currentTarget.dataset.topicId;
+  e.dataTransfer.effectAllowed = 'move';
+  setTimeout(()=>e.currentTarget.classList.add('dragging-topic'), 0);
+}
+function onTopicDragOver(e) {
+  if (!_dragTopicId) return;
+  e.preventDefault();
+  e.dataTransfer.dropEffect = 'move';
+  e.currentTarget.classList.add('drag-over-topic');
+}
+function onTopicDragLeave(e) { e.currentTarget.classList.remove('drag-over-topic'); }
+function onTopicDrop(e) {
+  e.preventDefault();
+  const targetId = e.currentTarget.dataset.topicId;
+  e.currentTarget.classList.remove('drag-over-topic');
+  if (!_dragTopicId || _dragTopicId === targetId) { _dragTopicId = null; return; }
+  const src = DB.topics.find(t=>t.id===_dragTopicId);
+  const tgt = DB.topics.find(t=>t.id===targetId);
+  if (!src || !tgt) { _dragTopicId = null; return; }
+  const tmp = src.order; src.order = tgt.order; tgt.order = tmp;
+  saveData(DB);
+  _dragTopicId = null;
+  renderMaterialList();
+}
+
+function toggleTopicAcc(id) {
+  const el = document.getElementById('tacc-' + id);
+  if (el) el.classList.toggle('open');
+}
+function toggleTopicAccById(fullId) {
+  const el = document.getElementById(fullId);
+  if (el) el.classList.toggle('open');
+}
+
+function esc(s) {
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ============================================================
+//  ASSESSMENTS
+// ============================================================
+function renderAssessments() {
+  populateClassSelects();
+  const classOpts = DB.classes.map(c=>`<option value="${c.id}">${c.name}</option>`).join('');
+  document.getElementById('mainContent').innerHTML = `
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">📝 Assessments</div>
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+          <select id="assessClassFilter" onchange="renderAssessmentList()" style="padding:7px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;">
+            <option value="">All Classes</option>${classOpts}
+          </select>
+          <button class="btn btn-primary" onclick="openAssessmentModal()">+ Create Assessment</button>
+        </div>
+      </div>
+      <div id="assessmentList"></div>
+    </div>`;
+  renderAssessmentList();
+}
+
+function renderAssessmentList() {
+  const container = document.getElementById('assessmentList');
+  if (!container) return;
+  const filterClass = document.getElementById('assessClassFilter')?.value || '';
+  const assessments = filterClass
+    ? DB.assessments.filter(a => a.classId === filterClass || a.classId === 'all')
+    : DB.assessments;
+  if (assessments.length===0) { container.innerHTML='<div class="empty-state"><div class="empty-icon">📝</div><h3>No Assessments</h3><p>Create your first assessment.</p></div>'; return; }
+  container.innerHTML = assessments.map(a => {
+    const cls = DB.classes.find(c=>c.id===a.classId);
+    const subs = DB.submissions.filter(s=>s.assessmentId===a.id);
+    const completed = subs.filter(s=>s.status==='Completed').length;
+    return `<div class="assessment-card">
+      <div class="assessment-type-icon ${a.type==='submission'?'type-submission':'type-tracking'}">${a.type==='submission'?'📤':'📋'}</div>
+      <div class="assessment-info">
+        <div class="assessment-title">${a.title}</div>
+        <div class="assessment-meta">${a.type==='submission'?'Requires Submission':'Status Tracking'} · ${cls?cls.name:'All Classes'} · Total: ${a.marks||'—'} marks${a.due?' · Due: '+a.due:''}</div>
+        <div style="margin-top:6px;"><span class="badge badge-submitted">${subs.length} submitted</span> <span class="badge badge-completed">${completed} completed</span></div>
+      </div>
+      <div class="assessment-actions">
+        <button class="btn btn-sm btn-info" onclick="openMatrixModal('${a.id}')">📊 Matrix</button>
+        <button class="btn btn-sm btn-secondary" onclick="openAssessmentModal('${a.id}')">✏️</button>
+        <button class="btn btn-sm btn-danger" onclick="deleteAssessment('${a.id}')">🗑️</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function openAssessmentModal(id) {
+  populateClassSelects();
+  if (id) {
+    const a = DB.assessments.find(x=>x.id===id);
+    document.getElementById('assessmentModalId').value = a.id;
+    document.getElementById('assessTitle').value = a.title;
+    document.getElementById('assessType').value = a.type;
+    document.getElementById('assessMarks').value = a.marks||'';
+    document.getElementById('assessWeightage').value = a.weightage||'';
+    document.getElementById('assessDue').value = a.due||'';
+    document.getElementById('assessClass').value = a.classId||'all';
+    document.getElementById('assessInstructions').value = a.instructions||'';
+    document.getElementById('assessmentModalTitle').textContent = 'Edit Assessment';
+  } else {
+    document.getElementById('assessmentModalId').value = '';
+    document.getElementById('assessTitle').value = '';
+    document.getElementById('assessType').value = 'submission';
+    document.getElementById('assessMarks').value = '';
+    document.getElementById('assessWeightage').value = '';
+    document.getElementById('assessDue').value = '';
+    document.getElementById('assessClass').value = 'all';
+    document.getElementById('assessInstructions').value = '';
+    document.getElementById('assessmentModalTitle').textContent = 'Create Assessment';
+  }
+  openModal('assessmentModal');
+}
+
+function saveAssessment() {
+  const id = document.getElementById('assessmentModalId').value;
+  const title = document.getElementById('assessTitle').value.trim();
+  if (!title) { showToast('Title is required.'); return; }
+  const obj = { title, type: document.getElementById('assessType').value, marks: document.getElementById('assessMarks').value, weightage: parseFloat(document.getElementById('assessWeightage').value)||0, due: document.getElementById('assessDue').value, classId: document.getElementById('assessClass').value, instructions: document.getElementById('assessInstructions').value.trim(), createdAt: new Date().toISOString() };
+  if (id) { const a=DB.assessments.find(x=>x.id===id); if(a) Object.assign(a,obj); }
+  else { DB.assessments.push({ id:uid(), ...obj }); }
+  saveData(DB);
+  closeModal('assessmentModal');
+  renderAssessmentList();
+  showToast('Assessment saved!');
+}
+
+function deleteAssessment(id) {
+  showConfirm('Delete this assessment and all its submissions?', () => {
+    DB.assessments = DB.assessments.filter(a=>a.id!==id);
+    DB.submissions = DB.submissions.filter(s=>s.assessmentId!==id);
+    saveData(DB);
+    renderAssessmentList();
+    showToast('Assessment deleted.');
+  });
+}
+
+// ============================================================
+//  SUBMISSION MATRIX
+// ============================================================
+function renderSubmissions() {
+  const classOpts = DB.classes.map(c=>`<option value="${c.id}">${c.name}</option>`).join('');
+  document.getElementById('mainContent').innerHTML = `
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">📊 Submission Matrix — Overview</div>
+        <select id="subViewClass" onchange="renderSubmissionList()" style="padding:7px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;">
+          <option value="">All Classes</option>${classOpts}
+        </select>
+      </div>
+      <div id="submissionList"></div>
+    </div>`;
+  renderSubmissionList();
+}
+
+function renderSubmissionList() {
+  const container = document.getElementById('submissionList');
+  if (!container) return;
+  const filterClass = document.getElementById('subViewClass')?.value || '';
+  const assessments = filterClass
+    ? DB.assessments.filter(a => a.classId === filterClass || a.classId === 'all')
+    : DB.assessments;
+  if (assessments.length===0) { container.innerHTML='<div class="empty-state"><div class="empty-icon">📊</div><h3>No Assessments</h3><p>Create assessments first.</p></div>'; return; }
+  container.innerHTML = assessments.map(a => {
+    const cls = DB.classes.find(c=>c.id===a.classId);
+    const allStudents = a.classId==='all' ? DB.students : DB.students.filter(s=>s.classId===a.classId);
+    // if filtering by class and assessment is "all classes", show only that class's students for counts
+    const students = filterClass && a.classId==='all' ? DB.students.filter(s=>s.classId===filterClass) : allStudents;
+    const subs = DB.submissions.filter(s=>s.assessmentId===a.id);
+    const submitted = subs.filter(s=>s.status==='Submitted').length;
+    const completed = subs.filter(s=>s.status==='Completed').length;
+    const incomplete = subs.filter(s=>s.status==='Incomplete').length;
+    const noSub = Math.max(0, students.length - subs.length);
+    return `<div class="assessment-card">
+      <div class="assessment-type-icon ${a.type==='submission'?'type-submission':'type-tracking'}">${a.type==='submission'?'📤':'📋'}</div>
+      <div class="assessment-info">
+        <div class="assessment-title">${a.title}</div>
+        <div class="assessment-meta">${cls?cls.name:'All Classes'} · ${students.length} students</div>
+        <div style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap;">
+          <span class="badge badge-submitted">Submitted: ${submitted}</span>
+          <span class="badge badge-completed">Completed: ${completed}</span>
+          <span class="badge badge-incomplete">Incomplete: ${incomplete}</span>
+          <span class="badge badge-no-submission">No Submission: ${noSub}</span>
+        </div>
+        ${students.length>0?`<div class="progress-bar mt-2" style="max-width:300px;"><div class="progress-fill" style="width:${Math.round((completed/students.length)*100)}%;background:var(--success);"></div></div>
+        <div class="text-muted" style="margin-top:2px;">${Math.round((completed/students.length)*100)}% complete</div>`:''}
+      </div>
+      <div class="assessment-actions">
+        <button class="btn btn-sm btn-info" onclick="openMatrixModal('${a.id}','${filterClass}')">📊 View Matrix</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function openMatrixModal(assessId, preFilterClass) {
+  const a = DB.assessments.find(x=>x.id===assessId);
+  if (!a) return;
+
+  // Build class filter options for "all classes" assessments
+  const isAllClasses = a.classId === 'all';
+  const classOpts = DB.classes.map(c=>`<option value="${c.id}" ${preFilterClass===c.id?'selected':''}>${c.name}</option>`).join('');
+  const filterSelect = isAllClasses
+    ? `<select id="matrixClassFilter" onchange="refreshMatrixTable('${assessId}')" style="padding:5px 10px;border:1.5px solid var(--border);border-radius:6px;font-size:13px;">
+        <option value="">All Classes</option>${classOpts}
+       </select>`
+    : '';
+
+  // Determine initial student set
+  const initialClass = preFilterClass || '';
+  let students = isAllClasses
+    ? (initialClass ? DB.students.filter(s=>s.classId===initialClass) : DB.students)
+    : DB.students.filter(s=>s.classId===a.classId);
+
+  document.getElementById('matrixModalTitle').textContent = `Submission Matrix — ${a.title}`;
+
+  const statusOptions = ['Submitted','Completed','Incomplete','No Submission'];
+  const maxMarks = a.marks || 999;
+
+  let html = `<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;flex-wrap:wrap;">
+    <div style="font-size:13px;color:var(--muted);">Update status, marks, and feedback directly. Changes save automatically.</div>
+    ${filterSelect}
+  </div>`;
+  html += buildMatrixTable(a, students, statusOptions, maxMarks);
+
+  document.getElementById('matrixContent').innerHTML = html;
+  openModal('matrixModal');
+}
+
+function refreshMatrixTable(assessId) {
+  const a = DB.assessments.find(x=>x.id===assessId);
+  if (!a) return;
+  const filterClass = document.getElementById('matrixClassFilter')?.value || '';
+  const students = filterClass ? DB.students.filter(s=>s.classId===filterClass) : DB.students;
+  const statusOptions = ['Submitted','Completed','Incomplete','No Submission'];
+  const maxMarks = a.marks || 999;
+  const tableWrap = document.getElementById('matrixTableWrap');
+  if (tableWrap) tableWrap.outerHTML = buildMatrixTable(a, students, statusOptions, maxMarks);
+}
+
+function buildMatrixTable(a, students, statusOptions, maxMarks) {
+  let html = `<div id="matrixTableWrap" class="table-wrap"><table class="matrix-table">
+    <thead><tr><th>#</th><th>Student ID</th><th>Student Name</th><th>Status</th>`;
+  if (a.type === 'submission') html += '<th>Submission</th>';
+  html += `<th>Marks</th><th>Feedback</th></tr></thead><tbody>`;
+
+  if (students.length === 0) {
+    html += `<tr><td colspan="${a.type==='submission'?7:6}" style="text-align:center;padding:24px;color:var(--muted);">No students found.</td></tr>`;
+  } else {
+    students.forEach((st,i) => {
+      const sub = DB.submissions.find(s=>s.assessmentId===a.id&&s.studentId===st.studentId);
+      const status = sub ? sub.status : 'No Submission';
+      html += `<tr>
+        <td>${i+1}</td>
+        <td>${st.studentId}</td>
+        <td class="student-cell">${st.name}</td>
+        <td class="matrix-status">
+          <select onchange="updateSubmissionStatus('${a.id}','${st.studentId}',this.value)" style="padding:4px 8px;border:1.5px solid var(--border);border-radius:6px;font-size:12px;cursor:pointer;">
+            ${statusOptions.map(opt=>`<option value="${opt}" ${status===opt?'selected':''}>${opt}</option>`).join('')}
+          </select>
+        </td>`;
+      if (a.type === 'submission') {
+        html += `<td>${sub&&sub.link ? `<a href="${sub.link}" target="_blank" style="font-size:12px;color:var(--primary-light);">🔗 View</a>` : '<span class="text-muted">—</span>'}</td>`;
+      }
+      html += `<td><input type="number" class="grade-input" min="0" max="${maxMarks}" placeholder="—" value="${sub&&sub.marks!==undefined&&sub.marks!==''?sub.marks:''}" onchange="saveInlineGrade('${a.id}','${st.studentId}',this.value,null)" style="padding:4px 6px;border:1.5px solid var(--border);border-radius:6px;font-size:12px;width:80px;"></td>
+        <td><input type="text" placeholder="—" value="${sub&&sub.feedback?sub.feedback.replace(/"/g,'&quot;'):''}" onchange="saveInlineGrade('${a.id}','${st.studentId}',null,this.value)" style="padding:4px 6px;border:1.5px solid var(--border);border-radius:6px;font-size:12px;width:100%;min-width:120px;"></td>
+      </tr>`;
+    });
+  }
+  html += '</tbody></table></div>';
+  return html;
+}
+
+function updateSubmissionStatus(assessId, studentId, status) {
+  let sub = DB.submissions.find(s=>s.assessmentId===assessId&&s.studentId===studentId);
+  if (sub) { sub.status = status; }
+  else { DB.submissions.push({ id:uid(), assessmentId:assessId, studentId, status, marks:'', feedback:'', link:'', notes:'', submittedAt: new Date().toISOString() }); }
+  saveData(DB);
+  showToast('Status updated!');
+}
+
+function saveInlineGrade(assessId, studentId, marks, feedback) {
+  let sub = DB.submissions.find(s=>s.assessmentId===assessId&&s.studentId===studentId);
+  if (!sub) {
+    sub = { id:uid(), assessmentId:assessId, studentId, status:'No Submission', marks:'', feedback:'', link:'', notes:'', submittedAt: new Date().toISOString() };
+    DB.submissions.push(sub);
+  }
+  if (marks !== null) sub.marks = marks;
+  if (feedback !== null) sub.feedback = feedback;
+  sub.gradedAt = new Date().toISOString();
+  saveData(DB);
+  showToast('Saved!');
+}
+
+function openGradingModal(assessId, studentId) {
+  const a = DB.assessments.find(x=>x.id===assessId);
+  const st = DB.students.find(s=>s.studentId===studentId);
+  let sub = DB.submissions.find(s=>s.assessmentId===assessId&&s.studentId===studentId);
+  if (!sub) {
+    sub = { id:uid(), assessmentId:assessId, studentId, status:'Submitted', marks:'', feedback:'', link:'', notes:'', submittedAt:'' };
+    DB.submissions.push(sub);
+    saveData(DB);
+  }
+
+  document.getElementById('gradingSubId').value = sub.id;
+  document.getElementById('gradingModalTitle').textContent = `Grade — ${a?a.title:''}`;
+  document.getElementById('gradingStudentInfo').innerHTML = `<strong>${st?st.name:studentId}</strong> <span class="text-muted">(${studentId})</span>`;
+  document.getElementById('gradingSubmissionInfo').innerHTML = a&&a.type==='submission'&&sub.link ?
+    `<div style="font-size:13px;"><span style="font-weight:600;">Submission:</span> <a href="${sub.link}" target="_blank" style="color:var(--primary-light);">🔗 ${sub.link}</a>${sub.notes?`<br><span class="text-muted">${sub.notes}</span>`:''}</div>` :
+    `<div class="text-muted" style="font-size:13px;">No submission link provided.</div>`;
+  document.getElementById('gradingStatus').value = sub.status||'Submitted';
+  document.getElementById('gradingMarks').value = sub.marks||'';
+  document.getElementById('gradingMarks').max = a&&a.marks ? a.marks : 999;
+  document.getElementById('gradingFeedback').value = sub.feedback||'';
+  openModal('gradingModal');
+}
+
+function saveGrade() {
+  const subId = document.getElementById('gradingSubId').value;
+  const sub = DB.submissions.find(s=>s.id===subId);
+  if (!sub) return;
+  sub.status = document.getElementById('gradingStatus').value;
+  sub.marks = document.getElementById('gradingMarks').value;
+  sub.feedback = document.getElementById('gradingFeedback').value.trim();
+  sub.gradedAt = new Date().toISOString();
+  saveData(DB);
+  closeModal('gradingModal');
+  // Refresh matrix if open
+  const matrixOpen = document.getElementById('matrixModal').classList.contains('open');
+  if (matrixOpen) openMatrixModal(sub.assessmentId);
+  if(document.getElementById('assessmentList')) renderAssessmentList();
+  showToast('Grade saved!');
+}
+
+// ============================================================
+//  STUDENT VIEWS
+// ============================================================
+
+// ── Material progress helpers ──────────────────────────────
+function getMySeenMats() {
+  // returns Set of materialIds seen by current student
+  const key = currentUser.studentId;
+  const arr = (DB.materialProgress[key] || []);
+  return new Set(arr);
+}
+
+function trackMaterialOpen(matId) {
+  if (currentUser.role !== 'student') return;
+  const key = currentUser.studentId;
+  if (!DB.materialProgress[key]) DB.materialProgress[key] = [];
+  const arr = DB.materialProgress[key];
+  if (!arr.includes(matId)) {
+    arr.push(matId);
+    saveData(DB);
+  }
+  // re-render progress ticks in place
+  const el = document.getElementById('matrow-' + matId);
+  if (el) el.classList.add('mat-item-done');
+  const tick = document.getElementById('mattick-' + matId);
+  if (tick) tick.textContent = '✓';
+  // refresh progress bars
+  refreshTopicProgressBars();
+  updateAvatarCrown();
+}
+
+function getMyMaterialStats() {
+  const student = DB.students.find(s=>s.studentId===currentUser.studentId);
+  const classId = student ? student.classId : '';
+  const topics  = [...(DB.topics||[])].sort((a,b)=>a.num-b.num);
+  const seen    = getMySeenMats();
+  const result  = [];
+  let totalAll = 0, seenAll = 0;
+  topics.forEach(t => {
+    const mats = (DB.materials||[]).filter(m => m.topicId===t.id && (m.classId==='all' || m.classId===classId));
+    const seenCount = mats.filter(m=>seen.has(m.id)).length;
+    totalAll += mats.length;
+    seenAll  += seenCount;
+    result.push({ topic:t, mats, seenCount, total:mats.length, pct: mats.length>0?Math.round((seenCount/mats.length)*100):0 });
+  });
+  return { topics: result, totalAll, seenAll, overallPct: totalAll>0?Math.round((seenAll/totalAll)*100):0 };
+}
+
+function refreshTopicProgressBars() {
+  const stats = getMyMaterialStats();
+  stats.topics.forEach(ts => {
+    const bar = document.getElementById('topicbar-' + ts.topic.id);
+    if (bar) bar.style.width = ts.pct + '%';
+    const lbl = document.getElementById('topiclbl-' + ts.topic.id);
+    if (lbl) lbl.textContent = `${ts.seenCount}/${ts.total} viewed`;
+  });
+}
+
+function updateAvatarCrown() {
+  if (currentUser.role !== 'student') return;
+  const stats = getMyMaterialStats();
+  const wrap  = document.getElementById('userAvatarWrap');
+  if (!wrap) return;
+  const existing = wrap.querySelector('.user-crown');
+  if (stats.overallPct === 100 && stats.totalAll > 0) {
+    if (!existing) {
+      const crown = document.createElement('div');
+      crown.className = 'user-crown';
+      crown.textContent = '👑';
+      wrap.appendChild(crown);
+    }
+  } else {
+    if (existing) existing.remove();
+  }
+}
+
+function renderMyMaterials() {
+  const student = DB.students.find(s=>s.studentId===currentUser.studentId);
+  const classId = student ? student.classId : '';
+  const catLabel = { material:'Teaching Material', activity:'Activity', reference:'Reference', video:'Video' };
+  const topics   = [...(DB.topics||[])].sort((a,b)=>a.num-b.num);
+  const seen     = getMySeenMats();
+  const stats    = getMyMaterialStats();
+
+  if (topics.length === 0) {
+    document.getElementById('mainContent').innerHTML = '<div class="empty-state"><div class="empty-icon">📚</div><h3>No Materials Yet</h3><p>Materials will appear here once added by your instructor.</p></div>';
+    return;
+  }
+
+  // Overall progress bar
+  const overallPct = stats.overallPct;
+  const overallHtml = `
+    <div style="margin-bottom:20px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+        <span style="font-size:13px;font-weight:600;">Overall Progress</span>
+        <span style="font-size:13px;font-weight:700;color:${overallPct===100?'var(--success)':'var(--primary-light)'};">${overallPct}%</span>
+      </div>
+      <div class="mat-progress-bar" style="height:10px;">
+        <div class="mat-progress-fill" style="width:${overallPct}%;background:${overallPct===100?'var(--success)':'var(--primary-light)'};" id="overallMatBar"></div>
+      </div>
+      <div class="text-muted" style="font-size:12px;margin-top:3px;">${stats.seenAll} of ${stats.totalAll} materials viewed</div>
+    </div>`;
+
+  const topicsHtml = stats.topics.map(ts => {
+    const t = ts.topic;
+    const mats = ts.mats;
+    const matRows = mats.length === 0
+      ? `<div style="padding:10px 0;color:var(--muted);font-size:13px;">No materials in this topic yet.</div>`
+      : mats.map(m => {
+          const ic  = matIconInfo(m);
+          const cat = catLabel[m.category] || m.category || '';
+          const done = seen.has(m.id);
+          let openBtn = '';
+          if (m.kind === 'url' && m.url) {
+            openBtn = `<a class="mat-open-btn" href="${m.url}" target="_blank" rel="noopener" onclick="trackMaterialOpen('${m.id}')">↗ Open</a>`;
+          } else if (m.dataUrl) {
+            if (MAT_OPENABLE_EXT.includes(matExt(m))) {
+              openBtn += `<a class="mat-open-btn" href="#" target="_blank" rel="noopener" onclick="return openMaterialInTab(this,'${m.id}')" title="Open in new tab" style="background:#f0fdf4;border-color:#86efac;color:#166534;">👁 Open</a>`;
+            }
+            openBtn += `<a class="mat-open-btn" href="${m.dataUrl}" download="${m.fileName||'file'}" onclick="trackMaterialOpen('${m.id}')">⬇ Download</a>`;
+          }
+          return `<div class="material-item${done?' mat-item-done':''}" id="matrow-${m.id}">
+            <div class="material-icon ${ic.cls}">${ic.icon}</div>
+            <div class="material-meta">
+              <div class="material-title">${esc(m.title)}</div>
+              <div class="material-type">${m.kind==='url'?(m.url||''):(m.fileName||'')}${m.description?' · '+esc(m.description):''}</div>
+            </div>
+            <span class="mat-cat-pill">${cat}</span>
+            <span id="mattick-${m.id}" class="mat-done-check" style="min-width:18px;">${done?'✓':''}</span>
+            <div class="material-actions">${openBtn}</div>
+          </div>`;
+        }).join('');
+
+    return `<div class="topic-accordion open" id="tacc-s${t.id}" style="margin-bottom:12px;">
+      <div class="topic-acc-header" onclick="toggleTopicAccById('tacc-s${t.id}')">
+        <div class="topic-acc-num">${t.num}</div>
+        <div class="topic-acc-info">
+          <div class="topic-acc-name">${esc(t.name)}</div>
+          <div class="mat-progress-wrap">
+            <div class="mat-progress-bar"><div class="mat-progress-fill" id="topicbar-${t.id}" style="width:${ts.pct}%;"></div></div>
+            <span class="mat-done-check" id="topiclbl-${t.id}" style="font-size:11px;color:var(--muted);min-width:70px;">${ts.seenCount}/${ts.total} viewed</span>
+          </div>
+        </div>
+        <div class="topic-acc-chevron">▼</div>
+      </div>
+      <div class="topic-acc-body">${matRows}</div>
+    </div>`;
+  }).join('');
+
+  document.getElementById('mainContent').innerHTML = `<div class="card">
+    <div class="card-header"><div class="card-title">📚 Your Learning Materials</div></div>
+    ${overallHtml}
+    ${topicsHtml}
+  </div>`;
+
+  updateAvatarCrown();
+}
+
+function renderMyAssessments() {
+  const student = DB.students.find(s=>s.studentId===currentUser.studentId);
+  const classId = student ? student.classId : '';
+  const assessments = DB.assessments.filter(a => a.classId==='all' || a.classId===classId);
+
+  if (assessments.length===0) { document.getElementById('mainContent').innerHTML='<div class="empty-state"><div class="empty-icon">📝</div><h3>No Assessments</h3><p>Assessments will appear here once created by your instructor.</p></div>'; return; }
+
+  const html = `<div class="card">
+    <div class="card-header"><div class="card-title">📝 My Assessments</div></div>
+    ${assessments.map(a => {
+      const sub = DB.submissions.find(s=>s.assessmentId===a.id&&s.studentId===currentUser.studentId);
+      const status = sub ? sub.status : 'No Submission';
+      return `<div class="assessment-card">
+        <div class="assessment-type-icon ${a.type==='submission'?'type-submission':'type-tracking'}">${a.type==='submission'?'📤':'📋'}</div>
+        <div class="assessment-info">
+          <div class="assessment-title">${a.title}</div>
+          <div class="assessment-meta">${a.type==='submission'?'Requires Submission':'Status Tracking'}${a.due?' · Due: '+a.due:''}${a.marks?' · Total: '+a.marks+' marks':''}</div>
+          ${a.instructions?`<div class="text-muted" style="margin-top:4px;font-size:12px;">${a.instructions}</div>`:''}
+          <div style="margin-top:8px;">${statusBadge(status)}${sub&&sub.marks!==undefined&&sub.marks!==''?` <span style="font-size:13px;font-weight:600;margin-left:8px;">Marks: ${sub.marks}/${a.marks||'—'}</span>`:''}</div>
+          ${sub&&sub.link?`<div style="margin-top:6px;font-size:12px;"><span class="text-muted">Your link:</span> <a href="${esc(sub.link)}" target="_blank" rel="noopener" style="color:var(--primary-light);word-break:break-all;">🔗 ${esc(sub.link)}</a>${sub.submittedAt?` <span class="text-muted">· ${new Date(sub.submittedAt).toLocaleString()}</span>`:''}</div>`:''}
+          ${sub&&sub.feedback?`<div style="margin-top:6px;background:#f8fafc;border-radius:8px;padding:8px 12px;font-size:13px;"><span class="text-muted">Feedback:</span> ${sub.feedback}</div>`:''}
+        </div>
+        <div class="assessment-actions" style="flex-direction:column;align-items:flex-end;gap:6px;">
+          ${a.type==='submission' ? (
+            sub&&sub.status==='Completed' ?
+              `<span class="badge badge-completed">Completed ✓</span>` :
+            sub&&sub.link ?
+              `<span class="badge badge-submitted">Submitted ✓</span>
+               <button class="btn btn-sm btn-secondary" onclick="openSubmissionModal('${a.id}')" title="Edit or resubmit your link">✏️ Edit / Resubmit</button>` :
+              `<button class="btn btn-sm btn-primary" onclick="openSubmissionModal('${a.id}')">📤 Submit</button>`
+          ) : ''}
+        </div>
+      </div>`;
+    }).join('')}
+  </div>`;
+  document.getElementById('mainContent').innerHTML = html;
+}
+
+function renderMyProgress() {
+  const student    = DB.students.find(s=>s.studentId===currentUser.studentId);
+  const classId    = student ? student.classId : '';
+  const assessments= DB.assessments.filter(a => a.classId==='all' || a.classId===classId);
+  const mySubs     = DB.submissions.filter(s=>s.studentId===currentUser.studentId);
+  const completed  = mySubs.filter(s=>s.status==='Completed').length;
+  const submitted  = mySubs.filter(s=>s.status==='Submitted').length;
+  const total      = assessments.length;
+  const pct        = total>0?Math.round(((completed+submitted)/total)*100):0;
+
+  // Attendance stats
+  const myAtt      = (DB.attendance||[]).filter(a=>a.studentId===currentUser.studentId);
+  const myHrs      = myAtt.filter(a=>a.status==='Present'||a.status==='Students Activity').reduce((s,a)=>s+(+a.hours||0),0);
+  const attPct     = Math.min(100, Math.round((myHrs/28)*100));
+
+  // Weighted marks
+  const totalW     = DB.assessments.reduce((s,a)=>s+(+a.weightage||0),0);
+  let weightedTotal= 0;
+  assessments.forEach(a => {
+    const sub = mySubs.find(s=>s.assessmentId===a.id);
+    if (sub && sub.marks!==undefined && sub.marks!=='' && a.marks && +a.marks>0 && +a.weightage>0) {
+      weightedTotal += (+sub.marks / +a.marks) * +a.weightage;
+    }
+  });
+
+  // Material progress via helper
+  const matStats   = getMyMaterialStats();
+  const matPct     = matStats.overallPct;
+  const is100      = matPct === 100 && matStats.totalAll > 0;
+
+  // 100% completion badge
+  const completionBadgeHtml = is100 ? `
+    <div class="completion-badge">
+      <div class="badge-icon">🏆</div>
+      <div>
+        <div class="badge-title">100% Completion Badge</div>
+        <div class="badge-sub">You have viewed all learning materials! Outstanding achievement, ${currentUser.name.split(' ')[0]}! 🎉</div>
+      </div>
+    </div>` : '';
+
+  const html = `
+    ${completionBadgeHtml}
+    <div class="stats-grid">
+      <div class="stat-card"><div class="stat-label">Assessments</div><div class="stat-value">${total}</div></div>
+      <div class="stat-card"><div class="stat-label">Completed</div><div class="stat-value" style="color:var(--success);">${completed}</div></div>
+      <div class="stat-card"><div class="stat-label">Attendance</div><div class="stat-value" style="color:var(--primary);">${attPct}%</div><div class="stat-sub">${myHrs}/28 hrs</div></div>
+      <div class="stat-card"><div class="stat-label">Weighted Score</div><div class="stat-value" style="color:var(--info);">${weightedTotal.toFixed(1)}%</div><div class="stat-sub">of ${totalW.toFixed(1)}% total weightage</div></div>
+      <div class="stat-card"><div class="stat-label">Materials Viewed</div><div class="stat-value" style="color:${is100?'var(--success)':'var(--primary-light)'};">${matPct}%</div><div class="stat-sub">${matStats.seenAll}/${matStats.totalAll} materials</div></div>
+    </div>
+
+    <div class="card" style="margin-bottom:16px;">
+      <div class="card-header"><div class="card-title">📊 My Engagement Overview</div>
+        <button class="btn btn-sm btn-primary" onclick="downloadMyReport()">⬇ Download Report</button>
+      </div>
+      <div style="margin-bottom:14px;">
+        <div style="font-size:13px;font-weight:600;margin-bottom:4px;">Assessment Completion</div>
+        <div class="progress-bar"><div class="progress-fill" style="width:${pct}%;background:var(--primary);"></div></div>
+        <div class="text-muted" style="margin-top:3px;">${pct}% (${completed+submitted}/${total})</div>
+      </div>
+      <div style="margin-bottom:14px;">
+        <div style="font-size:13px;font-weight:600;margin-bottom:4px;">Attendance Hours</div>
+        <div class="progress-bar"><div class="progress-fill" style="width:${attPct}%;background:var(--success);"></div></div>
+        <div class="text-muted" style="margin-top:3px;">${attPct}% (${myHrs}/28 hrs)</div>
+      </div>
+      <div style="margin-bottom:14px;">
+        <div style="font-size:13px;font-weight:600;margin-bottom:4px;">Learning Materials Viewed</div>
+        <div class="progress-bar"><div class="progress-fill" style="width:${matPct}%;background:${is100?'var(--success)':'var(--info)'};"></div></div>
+        <div class="text-muted" style="margin-top:3px;">${matPct}% (${matStats.seenAll}/${matStats.totalAll} materials)</div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-bottom:16px;">
+      <div class="card-header"><div class="card-title">📚 Materials Progress by Topic</div></div>
+      ${matStats.totalAll===0 ? '<p class="text-muted">No materials available yet.</p>' :
+        matStats.topics.filter(ts=>ts.total>0).map(ts=>`
+          <div style="padding:8px 0;border-bottom:1px solid var(--border);">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+              <span style="font-size:13px;font-weight:600;">Topic ${ts.topic.num} — ${esc(ts.topic.name)}</span>
+              <span style="font-size:12px;font-weight:700;color:${ts.pct===100?'var(--success)':'var(--muted)'};">${ts.pct===100?'✓ Done':ts.seenCount+'/'+ts.total}</span>
+            </div>
+            <div class="mat-progress-bar" style="height:8px;">
+              <div class="mat-progress-fill" style="width:${ts.pct}%;background:${ts.pct===100?'var(--success)':'var(--primary-light)'};"></div>
+            </div>
+          </div>`).join('')}
+    </div>
+
+    <div class="card">
+      <div class="card-header"><div class="card-title">📝 My Assessment Marks</div></div>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Assessment</th><th>Weightage</th><th>Status</th><th>Marks</th><th>Score</th><th>Feedback</th></tr></thead>
+        <tbody>
+          ${assessments.map(a=>{
+            const sub = mySubs.find(s=>s.assessmentId===a.id);
+            const pctA = (sub&&sub.marks!==''&&a.marks&&+a.marks>0) ? Math.round((+sub.marks/+a.marks)*100)+'%' : '—';
+            return `<tr>
+              <td><strong>${a.title}</strong></td>
+              <td>${a.weightage||0}%</td>
+              <td>${statusBadge(sub?sub.status:'No Submission')}</td>
+              <td>${sub&&sub.marks!==undefined&&sub.marks!==''?`${sub.marks}/${a.marks||'—'}`:'—'}</td>
+              <td>${pctA}</td>
+              <td style="font-size:12px;max-width:160px;">${sub&&sub.feedback?sub.feedback:'—'}</td>
+            </tr>`;
+          }).join('')}
+          <tr style="background:#f8fafc;font-weight:700;">
+            <td>Total (Weighted)</td><td>${totalW.toFixed(1)}%</td><td colspan="2">—</td>
+            <td>${weightedTotal.toFixed(1)}%</td><td>—</td>
+          </tr>
+        </tbody>
+      </table></div>
+    </div>`;
+  document.getElementById('mainContent').innerHTML = html;
+  updateAvatarCrown();
+}
+
+// ── Download student report as HTML ──
+function downloadMyReport() {
+  const student    = DB.students.find(s=>s.studentId===currentUser.studentId);
+  const classId    = student ? student.classId : '';
+  const cls        = DB.classes.find(c=>c.id===classId);
+  const assessments= DB.assessments.filter(a => a.classId==='all'||a.classId===classId);
+  const mySubs     = DB.submissions.filter(s=>s.studentId===currentUser.studentId);
+  const myAtt      = (DB.attendance||[]).filter(a=>a.studentId===currentUser.studentId);
+  const myHrs      = myAtt.filter(a=>a.status==='Present'||a.status==='Students Activity').reduce((s,a)=>s+(+a.hours||0),0);
+  const attPct     = Math.min(100,Math.round((myHrs/28)*100));
+  const totalW     = DB.assessments.reduce((s,a)=>s+(+a.weightage||0),0);
+  let weightedTotal= 0;
+  assessments.forEach(a => {
+    const sub = mySubs.find(s=>s.assessmentId===a.id);
+    if (sub&&sub.marks!==undefined&&sub.marks!==''&&a.marks&&+a.marks>0&&+a.weightage>0)
+      weightedTotal += (+sub.marks/+a.marks)*+a.weightage;
+  });
+  const sess = getActiveSession();
+
+  const rows = assessments.map(a=>{
+    const sub = mySubs.find(s=>s.assessmentId===a.id);
+    return `<tr><td>${a.title}</td><td>${a.weightage||0}%</td><td>${sub?sub.status:'No Submission'}</td><td>${sub&&sub.marks!==''?`${sub.marks}/${a.marks||'—'}`:'—'}</td><td>${sub&&sub.feedback?sub.feedback:'—'}</td></tr>`;
+  }).join('');
+
+  const attRows = myAtt.sort((a,b)=>a.date<b.date?-1:1).map(a=>
+    `<tr><td>${a.date}</td><td>${a.hours}h</td><td>${a.status}</td></tr>`).join('');
+
+  const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Report — ${currentUser.name}</title>
+  <style>body{font-family:sans-serif;max-width:800px;margin:40px auto;color:#1e293b}h1{color:#1e3a8a}table{width:100%;border-collapse:collapse;margin-bottom:24px}th{background:#1e3a8a;color:#fff;padding:8px 12px;text-align:left;font-size:12px}td{padding:8px 12px;border-bottom:1px solid #e2e8f0;font-size:13px}.stat{display:inline-block;margin-right:24px;margin-bottom:12px}.stat-v{font-size:26px;font-weight:800;color:#1e3a8a}.stat-l{font-size:11px;color:#64748b;text-transform:uppercase}</style>
+  </head><body>
+  <h1>SUE10031 Communicative English</h1>
+  <p><strong>Student:</strong> ${currentUser.name} (${currentUser.studentId})</p>
+  <p><strong>Class:</strong> ${cls?cls.name:'—'} &nbsp; <strong>Session:</strong> ${sess?sess.name:'—'}</p>
+  <p><strong>Generated:</strong> ${new Date().toLocaleString()}</p>
+  <hr style="margin:20px 0">
+  <div>
+    <div class="stat"><div class="stat-v">${attPct}%</div><div class="stat-l">Attendance (${myHrs}/28 hrs)</div></div>
+    <div class="stat"><div class="stat-v">${weightedTotal.toFixed(1)}%</div><div class="stat-l">Weighted Score</div></div>
+  </div>
+  <h2 style="margin:20px 0 10px">Assessment Results</h2>
+  <table><thead><tr><th>Assessment</th><th>Weightage</th><th>Status</th><th>Marks</th><th>Feedback</th></tr></thead><tbody>${rows}</tbody></table>
+  <h2 style="margin:20px 0 10px">Attendance Log</h2>
+  <table><thead><tr><th>Date</th><th>Hours</th><th>Status</th></tr></thead><tbody>${attRows||'<tr><td colspan="3">No records</td></tr>'}</tbody></table>
+  </body></html>`;
+
+  const blob = new Blob([html],{type:'text/html'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `Report_${currentUser.studentId}_${new Date().toISOString().slice(0,10)}.html`;
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+
+function openSubmissionModal(assessId) {
+  const a = DB.assessments.find(x=>x.id===assessId);
+  const sub = DB.submissions.find(s=>s.assessmentId===assessId&&s.studentId===currentUser.studentId);
+  if (sub && sub.status === 'Completed') { showToast('This assessment has been marked Completed and can no longer be edited.'); return; }
+  const isEdit = !!(sub && sub.link);
+  document.getElementById('submissionAssessId').value = assessId;
+  document.getElementById('submissionModalTitle').textContent = `${isEdit?'Edit Submission':'Submit'} — ${a?a.title:''}`;
+  document.querySelector('#submissionModal .modal-footer .btn-primary').textContent = isEdit ? '🔄 Resubmit' : '📤 Submit';
+  document.getElementById('submissionAssessInfo').innerHTML = `<strong>${a?a.title:''}</strong>${a&&a.due?` · Due: ${a.due}`:''}${a&&a.instructions?`<br><span class="text-muted" style="font-size:12px;">${a.instructions}</span>`:''}`;
+  document.getElementById('subLink').value = sub&&sub.link?sub.link:'';
+  document.getElementById('subNotes').value = sub&&sub.notes?sub.notes:'';
+  openModal('submissionModal');
+}
+
+function submitAssessment() {
+  const assessId = document.getElementById('submissionAssessId').value;
+  const link = document.getElementById('subLink').value.trim();
+  const notes = document.getElementById('subNotes').value.trim();
+  if (!link) { showToast('Please provide a submission link.'); return; }
+  let sub = DB.submissions.find(s=>s.assessmentId===assessId&&s.studentId===currentUser.studentId);
+  if (sub && sub.status === 'Completed') { showToast('This assessment has been marked Completed and can no longer be edited.'); return; }
+  const isResubmit = !!(sub && sub.link);
+  if (sub) { sub.link=link; sub.notes=notes; sub.status='Submitted'; sub.submittedAt=new Date().toISOString(); }
+  else { DB.submissions.push({id:uid(),assessmentId:assessId,studentId:currentUser.studentId,status:'Submitted',link,notes,marks:'',feedback:'',submittedAt:new Date().toISOString()}); }
+  saveData(DB);
+  closeModal('submissionModal');
+  renderMyAssessments();
+  showToast(isResubmit ? 'Resubmitted successfully!' : 'Submitted successfully!');
+}
+
+// ============================================================
+//  INTERACTIVE QUIZZES (results stored by quiz-*.html in localStorage)
+// ============================================================
+const QUIZZES = [
+  { id: 'hvac-comp-sup', title: 'Comparative & Superlative Adjectives — HVAC Product Descriptions', file: 'quiz-comparatives.html', questions: 10, passPct: 70, topic: 'Grammar · Technical Product Descriptions' }
+];
+const QUIZ_RESULTS_KEY = 'SUE10031_QuizResults';
+function loadQuizResults() { try { return JSON.parse(localStorage.getItem(QUIZ_RESULTS_KEY) || '[]'); } catch(e) { return []; } }
+function fmtQuizTime(sec) { sec = sec || 0; return String(Math.floor(sec/60)).padStart(2,'0') + ':' + String(sec%60).padStart(2,'0'); }
+function fmtQuizDate(iso) { if (!iso) return '—'; const d = new Date(iso); return d.toLocaleDateString() + ' ' + d.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'}); }
+
+function renderMyQuiz() {
+  const results = loadQuizResults();
+  const html = QUIZZES.map(qz => {
+    const mine = results.filter(r => r.quiz === qz.id && r.studentId === currentUser.studentId).sort((a,b)=>(b.finishedAt||'').localeCompare(a.finishedAt||''));
+    const best = mine.length ? Math.max(...mine.map(r => r.pct)) : null;
+    return `<div class="card">
+      <div class="card-header"><div class="card-title">🧪 ${esc(qz.title)}</div></div>
+      <div class="text-muted" style="margin-bottom:10px;">${esc(qz.topic)} · ${qz.questions} questions · Passing score ${qz.passPct}% · Instant feedback and a printable score report</div>
+      <div class="flex items-center gap-2" style="flex-wrap:wrap;margin-bottom:14px;">
+        <a class="btn btn-primary" href="${qz.file}" target="_blank" rel="noopener">▶ ${mine.length ? 'Retake Quiz' : 'Start Quiz'}</a>
+        ${best !== null ? `<span class="badge ${best >= qz.passPct ? 'badge-completed' : 'badge-incomplete'}">Best: ${best}%</span><span class="text-muted">${mine.length} attempt${mine.length>1?'s':''}</span>` : '<span class="text-muted">Not attempted yet</span>'}
+      </div>
+      ${mine.length ? `<div class="table-wrap"><table class="matrix-table"><thead><tr><th>#</th><th>Date</th><th>Score</th><th>%</th><th>Result</th><th>Time</th></tr></thead><tbody>
+        ${mine.map((r,i) => `<tr><td>${mine.length - i}</td><td>${fmtQuizDate(r.finishedAt)}</td><td>${r.score}/${r.total}</td><td><strong>${r.pct}%</strong></td><td>${statusBadge(r.pct >= qz.passPct ? 'Completed' : 'Incomplete').replace('Completed','Pass').replace('Incomplete','Below pass')}</td><td>${fmtQuizTime(r.durationSec)}</td></tr>`).join('')}
+      </tbody></table></div>` : ''}
+    </div>`;
+  }).join('');
+  document.getElementById('mainContent').innerHTML = html;
+}
+
+function renderQuizResults() {
+  const results = loadQuizResults();
+  const html = QUIZZES.map(qz => {
+    const all = results.filter(r => r.quiz === qz.id);
+    const byStudent = {};
+    all.forEach(r => { const k = r.studentId || r.name; if (!byStudent[k] || (r.finishedAt||'') > (byStudent[k].finishedAt||'')) byStudent[k] = r; });
+    const rows = Object.values(byStudent).sort((a,b)=>(a.className||'').localeCompare(b.className||'')||(a.name||'').localeCompare(b.name||''));
+    const n = rows.length;
+    const avg = n ? Math.round(rows.reduce((s,r)=>s+r.pct,0)/n) : 0;
+    const passN = rows.filter(r => r.pct >= qz.passPct).length;
+    return `<div class="card">
+      <div class="card-header"><div class="card-title">🧪 ${esc(qz.title)}</div>
+        <a class="btn btn-sm btn-primary" href="${qz.file}?view=lecturer" target="_blank" rel="noopener">📊 Full Lecturer Report</a></div>
+      <div class="text-muted" style="margin-bottom:12px;">Latest attempt per student. Results are stored in this browser; open the full report to import result codes sent by students, see item analysis, and export CSV.</div>
+      <div class="stats-grid" style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:14px;">
+        <div class="stat-card"><div class="stat-label">Students</div><div class="stat-value">${n}</div><div class="stat-sub">${all.length} attempt${all.length===1?'':'s'}</div></div>
+        <div class="stat-card"><div class="stat-label">Average</div><div class="stat-value">${avg}%</div></div>
+        <div class="stat-card"><div class="stat-label">Pass rate</div><div class="stat-value">${n?Math.round(passN/n*100):0}%</div><div class="stat-sub">${passN} of ${n} ≥ ${qz.passPct}%</div></div>
+        <div class="stat-card"><div class="stat-label">Questions</div><div class="stat-value">${qz.questions}</div></div>
+      </div>
+      ${n === 0 ? '<p class="text-muted">No results yet.</p>' : `<div class="table-wrap"><table class="matrix-table"><thead><tr><th>#</th><th>Student ID</th><th>Name</th><th>Class</th><th>Score</th><th>%</th><th>Result</th><th>Time</th><th>Date</th></tr></thead><tbody>
+        ${rows.map((r,i) => `<tr><td>${i+1}</td><td>${esc(r.studentId)}</td><td>${esc(r.name)}</td><td>${esc(r.className||'—')}</td><td>${r.score}/${r.total}</td><td><strong>${r.pct}%</strong></td><td>${statusBadge(r.pct >= qz.passPct ? 'Completed' : 'Incomplete').replace('Completed','Pass').replace('Incomplete','Fail')}</td><td>${fmtQuizTime(r.durationSec)}</td><td>${fmtQuizDate(r.finishedAt)}</td></tr>`).join('')}
+      </tbody></table></div>`}
+    </div>`;
+  }).join('');
+  document.getElementById('mainContent').innerHTML = html;
+}
+
+// ============================================================
+//  UTILITIES
+// ============================================================
+function statusBadge(status) {
+  const map = { 'Submitted':'badge-submitted','Completed':'badge-completed','No Submission':'badge-no-submission','Incomplete':'badge-incomplete' };
+  return `<span class="badge ${map[status]||'badge-pending'}">${status||'No Submission'}</span>`;
+}
+
+function populateClassSelects(specificId) {
+  const selects = specificId ? [specificId] : ['matClass','assessClass','topicClass'];
+  selects.forEach(id => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.innerHTML = '<option value="all">All Classes</option>' + DB.classes.map(c=>`<option value="${c.id}">${c.name}</option>`).join('');
+  });
+}
+
+function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2,7); }
+
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+function switchTab(tabId, groupId, el) {
+  const parent = document.getElementById(groupId);
+  parent.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
+  document.getElementById(tabId).classList.add('active');
+  const tabBar = el.closest('.tabs');
+  if (tabBar) tabBar.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+}
+
+let _confirmCallback = null;
+function showConfirm(msg, cb) {
+  document.getElementById('confirmMsg').textContent = msg;
+  _confirmCallback = cb;
+  openModal('confirmModal');
+  document.getElementById('confirmOkBtn').onclick = () => { closeModal('confirmModal'); if(_confirmCallback) _confirmCallback(); };
+}
+
+function showToast(msg, duration=3000) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.style.display = 'block';
+  setTimeout(()=>{ t.style.display='none'; }, duration);
+}
+
+function toggleAssessFields() {
+  // Could show/hide submission-specific fields
+}
+
+// Close modals on overlay click
+document.querySelectorAll('.modal-overlay').forEach(overlay => {
+  overlay.addEventListener('click', function(e) {
+    if (e.target === this) closeModal(this.id);
+  });
+});
+
+// ENTER key for login
+document.getElementById('loginPass').addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') doLogin();
+});
+document.getElementById('loginUser').addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') doLogin();
+});
+
+// ============================================================
+//  ATTENDANCE
+// ============================================================
+let _attStatuses = {}; // { studentId: 'Present'|'Absent'|'MC'|'Students Activity' }
+
+function renderAttendance() {
+  const attRecords = DB.attendance || [];
+  // unique dates, sorted desc
+  const dates = [...new Set(attRecords.map(a=>a.date))].sort((a,b)=>b.localeCompare(a));
+  const classOpts = DB.classes.map(c=>`<option value="${c.id}">${c.name}</option>`).join('');
+
+  document.getElementById('mainContent').innerHTML = `
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">🗓️ Attendance Register</div>
+        <div class="flex gap-2">
+          <select id="attViewClass" onchange="renderAttTable()" style="padding:7px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;">
+            <option value="">All Classes</option>${classOpts}
+          </select>
+          <button class="btn btn-primary" onclick="openAttendanceModal()">+ Record Attendance</button>
+        </div>
+      </div>
+      <div style="font-size:13px;color:var(--muted);margin-bottom:12px;">Total 28 hours / 14 weeks · Present & Student Activity hours count toward attendance.</div>
+      <div id="attTable"></div>
+    </div>`;
+  renderAttTable();
+}
+
+function renderAttTable() {
+  const filterClass = document.getElementById('attViewClass')?.value || '';
+  const students    = filterClass ? DB.students.filter(s=>s.classId===filterClass) : DB.students;
+  const attRecords  = DB.attendance || [];
+  const studentIds  = new Set(students.map(s=>s.studentId));
+  const relevantRecs = filterClass
+    ? attRecords.filter(a=>studentIds.has(a.studentId))
+    : attRecords;
+  const dates       = [...new Set(relevantRecs.map(a=>a.date))].sort();
+  const container   = document.getElementById('attTable');
+  if (!container) return;
+
+  if (students.length === 0) { container.innerHTML='<div class="empty-state"><div class="empty-icon">🗓️</div><h3>No Students</h3><p>Add students to a class first.</p></div>'; return; }
+
+  const statusCls = { 'Present':'att-badge-present','Absent':'att-badge-absent','MC':'att-badge-mc','Students Activity':'att-badge-activity' };
+  const short     = { 'Present':'P','Absent':'A','MC':'MC','Students Activity':'SA' };
+
+  // summary table
+  let html = `<div class="table-wrap"><table>
+    <thead><tr><th>#</th><th>Student</th><th>Hours</th><th>Att %</th>${dates.map(d=>`<th style="min-width:70px;">${d.slice(5)}</th>`).join('')}</tr></thead>
+    <tbody>`;
+  students.forEach((st,i)=>{
+    const myRecs = attRecords.filter(a=>a.studentId===st.studentId);
+    const hrs    = myRecs.filter(a=>a.status==='Present'||a.status==='Students Activity').reduce((s,a)=>s+(+a.hours||0),0);
+    const pct    = Math.min(100,Math.round((hrs/28)*100));
+    html += `<tr><td>${i+1}</td><td style="font-weight:600;">${st.name}<br><span class="text-muted">${st.studentId}</span></td>
+      <td>${hrs}/28</td>
+      <td><div style="display:flex;align-items:center;gap:6px;">
+        <div style="width:60px;background:var(--border);border-radius:4px;height:8px;overflow:hidden;">
+          <div style="width:${pct}%;height:100%;background:${pct>=80?'var(--success)':pct>=60?'var(--warning)':'var(--danger)'}"></div>
+        </div><span style="font-size:12px;">${pct}%</span></div></td>`;
+    dates.forEach(d=>{
+      const rec = myRecs.find(a=>a.date===d);
+      html += rec
+        ? `<td><span class="badge ${statusCls[rec.status]||''}" title="${rec.status} · ${rec.hours}h">${short[rec.status]||rec.status}</span></td>`
+        : `<td><span style="color:var(--muted);font-size:12px;">—</span></td>`;
+    });
+    html += '</tr>';
+  });
+  html += '</tbody></table></div>';
+  container.innerHTML = html;
+}
+
+function openAttendanceModal() {
+  _attStatuses = {};
+  const today = new Date().toISOString().slice(0,10);
+  document.getElementById('attDate').value  = today;
+  document.getElementById('attHours').value = 2;
+  // populate class filter
+  const sel = document.getElementById('attClassFilter');
+  sel.innerHTML = '<option value="">All Classes</option>' + DB.classes.map(c=>`<option value="${c.id}">${c.name}</option>`).join('');
+  renderAttModalStudents();
+  openModal('attendanceModal');
+}
+
+function renderAttModalStudents() {
+  const filterClass = document.getElementById('attClassFilter').value;
+  const students    = filterClass ? DB.students.filter(s=>s.classId===filterClass) : DB.students;
+  const container   = document.getElementById('attStudentRows');
+  if (students.length === 0) { container.innerHTML='<p class="text-muted">No students in this class.</p>'; return; }
+
+  const statuses = ['Present','Absent','MC','Students Activity'];
+  const selCls   = { Present:'sel-present', Absent:'sel-absent', MC:'sel-mc', 'Students Activity':'sel-activity' };
+
+  container.innerHTML = students.map(st => `
+    <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border);">
+      <div style="flex:1;min-width:0;">
+        <div style="font-weight:600;font-size:13px;">${st.name}</div>
+        <div class="text-muted">${st.studentId}</div>
+      </div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;">
+        ${statuses.map(s=>`
+          <button class="att-status-btn" id="attbtn-${st.studentId}-${s.replace(' ','_')}"
+            onclick="setAttStatus('${st.studentId}','${s}')">${s}</button>`).join('')}
+      </div>
+    </div>`).join('');
+
+  // restore existing selections
+  Object.entries(_attStatuses).forEach(([sid,stat])=>setAttStatus(sid,stat,true));
+}
+
+function setAttStatus(studentId, status, silent) {
+  _attStatuses[studentId] = status;
+  const all = ['Present','Absent','MC','Students Activity'];
+  all.forEach(s=>{
+    const btn = document.getElementById(`attbtn-${studentId}-${s.replace(' ','_')}`);
+    if (!btn) return;
+    btn.className = 'att-status-btn';
+    if (s===status) {
+      const map={Present:'sel-present',Absent:'sel-absent',MC:'sel-mc','Students Activity':'sel-activity'};
+      btn.classList.add(map[s]);
+    }
+  });
+}
+
+function saveAttendance() {
+  const date  = document.getElementById('attDate').value;
+  const hours = parseFloat(document.getElementById('attHours').value)||0;
+  if (!date)  { showToast('Please select a date.'); return; }
+  if (Object.keys(_attStatuses).length===0) { showToast('Mark at least one student.'); return; }
+
+  const att = DB.attendance || [];
+  Object.entries(_attStatuses).forEach(([studentId, status])=>{
+    // remove existing record for same student+date
+    const idx = att.findIndex(a=>a.studentId===studentId&&a.date===date);
+    const hrs = (status==='Absent'||status==='MC') ? 0 : hours;
+    const rec = { id:uid(), studentId, date, hours:hrs, status };
+    if (idx>=0) att[idx]=rec; else att.push(rec);
+  });
+  DB.attendance = att;
+  saveData(DB);
+  closeModal('attendanceModal');
+  renderAttendance();
+  showToast(`Attendance saved for ${Object.keys(_attStatuses).length} student(s)!`);
+  _attStatuses = {};
+}
+
+// ── Student view ──
+function renderMyAttendance() {
+  const myAtt  = (DB.attendance||[]).filter(a=>a.studentId===currentUser.studentId).sort((a,b)=>a.date.localeCompare(b.date));
+  const myHrs  = myAtt.filter(a=>a.status==='Present'||a.status==='Students Activity').reduce((s,a)=>s+(+a.hours||0),0);
+  const attPct = Math.min(100,Math.round((myHrs/28)*100));
+  const statusCls = { Present:'att-badge-present', Absent:'att-badge-absent', MC:'att-badge-mc', 'Students Activity':'att-badge-activity' };
+
+  document.getElementById('mainContent').innerHTML = `
+    <div class="stats-grid">
+      <div class="stat-card"><div class="stat-label">Hours Attended</div><div class="stat-value" style="color:var(--success);">${myHrs}</div><div class="stat-sub">out of 28 hrs</div></div>
+      <div class="stat-card"><div class="stat-label">Attendance Rate</div><div class="stat-value" style="color:var(--primary);">${attPct}%</div></div>
+      <div class="stat-card"><div class="stat-label">Sessions</div><div class="stat-value">${myAtt.length}</div><div class="stat-sub">recorded</div></div>
+    </div>
+    <div class="card">
+      <div class="card-header"><div class="card-title">🗓️ My Attendance Log</div></div>
+      <div class="progress-bar" style="margin-bottom:12px;">
+        <div class="progress-fill" style="width:${attPct}%;background:${attPct>=80?'var(--success)':attPct>=60?'var(--warning)':'var(--danger)'};"></div>
+      </div>
+      <div class="text-muted" style="margin-bottom:16px;">${myHrs}/28 hours (${attPct}%)</div>
+      ${myAtt.length===0 ? '<p class="text-muted">No attendance recorded yet.</p>' :
+        `<div class="table-wrap"><table>
+          <thead><tr><th>Date</th><th>Hours</th><th>Status</th></tr></thead>
+          <tbody>${myAtt.map(a=>`
+            <tr><td>${a.date}</td>
+            <td>${a.hours}h</td>
+            <td><span class="badge ${statusCls[a.status]||''}">${a.status}</span></td>
+            </tr>`).join('')}
+          </tbody>
+        </table></div>`}
+    </div>`;
+}
+
+// ============================================================
+//  ARCHIVE UTILITY
+// ============================================================
+function archiveOldData() {
+  const cutoff = new Date();
+  cutoff.setFullYear(cutoff.getFullYear() - 1);
+  let archive = [];
+  try { archive = JSON.parse(localStorage.getItem(ARCHIVE_KEY)||'[]'); } catch(e){}
+  const toArchive = DB.submissions.filter(s => s.submittedAt && new Date(s.submittedAt) < cutoff);
+  if (toArchive.length > 0) {
+    archive.push(...toArchive);
+    DB.submissions = DB.submissions.filter(s => !toArchive.includes(s));
+    localStorage.setItem(ARCHIVE_KEY, JSON.stringify(archive));
+    saveData(DB);
+  }
+}
+
+// ============================================================
+//  BOOTSTRAP
+// ============================================================
+// Auto-login persistence (session only)
+window.addEventListener('load', () => {
+  // Nothing to auto-restore — require fresh login
+});
+
+</script>
+</body>
+</html>
